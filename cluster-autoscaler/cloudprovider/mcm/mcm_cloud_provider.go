@@ -31,7 +31,6 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/autoscaler/cluster-autoscaler/utils/errors"
-	kube_client "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
@@ -54,8 +53,6 @@ const (
 	// TODO: Align on a GPU Label for Gardener.
 	GPULabel = "gardener.cloud/accelerator"
 )
-
-var DeployKubeClient kube_client.Interface
 
 // MCMCloudProvider implements the cloud provider interface for machine-controller-manager
 // Reference: https://github.com/gardener/machine-controller-manager
@@ -216,9 +213,9 @@ func newDeploymentLister() *v1appslister.DeploymentLister {
 	controlCoreClientBuilder := CoreControllerClientBuilder{
 		ClientConfig: controlKubeconfig,
 	}
-	DeployKubeClient = controlCoreClientBuilder.ClientOrDie("deploykubeclient")
+	deployKubeClient := controlCoreClientBuilder.ClientOrDie("deploykubeclient")
 	selector := fields.Everything()
-	deploymentListWatch := cache.NewListWatchFromClient(DeployKubeClient.AppsV1().RESTClient(), "deployments", namespace, selector)
+	deploymentListWatch := cache.NewListWatchFromClient(deployKubeClient.AppsV1().RESTClient(), "deployments", namespace, selector)
 	store, reflector := cache.NewNamespaceKeyedIndexerAndReflector(deploymentListWatch, &v1.Deployment{}, time.Hour)
 	deploymentLister := v1appslister.NewDeploymentLister(store)
 	stopCh := make(chan struct{})
@@ -230,9 +227,8 @@ func newDeploymentLister() *v1appslister.DeploymentLister {
 // In particular the list of node groups returned by NodeGroups can change as a result of CloudProvider.Refresh().
 func (mcm *mcmCloudProvider) Refresh() error {
 
-	lister := deploymentLister
 	namespace := os.Getenv("CONTROL_NAMESPACE")
-	deployment, err := (*lister).Deployments(namespace).Get("machine-controller-manager")
+	deployment, err := (*deploymentLister).Deployments(namespace).Get("machine-controller-manager")
 	if err != nil {
 		klog.Errorf("failed to get machine-controller-manager deployment: ", err.Error())
 		return err
