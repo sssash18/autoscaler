@@ -24,19 +24,26 @@ package mcm
 import (
 	"context"
 	"fmt"
-	"strings"
-
+	v1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/autoscaler/cluster-autoscaler/utils/errors"
+	kube_client "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	schedulerframework "k8s.io/kubernetes/pkg/scheduler/framework"
+	"os"
+	"strings"
+	"time"
 
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
 	"k8s.io/autoscaler/cluster-autoscaler/config"
 	"k8s.io/autoscaler/cluster-autoscaler/config/dynamic"
-	"k8s.io/autoscaler/cluster-autoscaler/utils/errors"
+	v1appslister "k8s.io/client-go/listers/apps/v1"
 )
 
 const (
@@ -47,6 +54,8 @@ const (
 	// TODO: Align on a GPU Label for Gardener.
 	GPULabel = "gardener.cloud/accelerator"
 )
+
+var DeployKubeClient kube_client.Interface
 
 // MCMCloudProvider implements the cloud provider interface for machine-controller-manager
 // Reference: https://github.com/gardener/machine-controller-manager
@@ -192,9 +201,48 @@ func (mcm *mcmCloudProvider) GetResourceLimiter() (*cloudprovider.ResourceLimite
 	return mcm.resourceLimiter, nil
 }
 
+var deploymentLister *v1appslister.DeploymentLister
+
+func init() {
+	deploymentLister = newDeploymentLister()
+}
+
+func newDeploymentLister() *v1appslister.DeploymentLister {
+	namespace := os.Getenv("CONTROL_NAMESPACE")
+	controlKubeconfig, err := clientcmd.BuildConfigFromFlags("", "")
+	if err != nil {
+		klog.Errorf(err.Error())
+	}
+	controlCoreClientBuilder := CoreControllerClientBuilder{
+		ClientConfig: controlKubeconfig,
+	}
+	DeployKubeClient = controlCoreClientBuilder.ClientOrDie("deploykubeclient")
+	selector := fields.Everything()
+	deploymentListWatch := cache.NewListWatchFromClient(DeployKubeClient.AppsV1().RESTClient(), "deployments", namespace, selector)
+	store, reflector := cache.NewNamespaceKeyedIndexerAndReflector(deploymentListWatch, &v1.Deployment{}, time.Hour)
+	deploymentLister := v1appslister.NewDeploymentLister(store)
+	stopCh := make(chan struct{})
+	go reflector.Run(stopCh)
+	return &deploymentLister
+}
+
 // Refresh is called before every main loop and can be used to dynamically update cloud provider state.
 // In particular the list of node groups returned by NodeGroups can change as a result of CloudProvider.Refresh().
 func (mcm *mcmCloudProvider) Refresh() error {
+
+	lister := deploymentLister
+	namespace := os.Getenv("CONTROL_NAMESPACE")
+	deployment, err := (*lister).Deployments(namespace).Get("machine-controller-manager")
+	if err != nil {
+		klog.Errorf("failed to get machine-controller-manager deployment: ", err.Error())
+		return err
+	}
+
+	if !(deployment.Status.AvailableReplicas >= 1) {
+		klog.Errorf("machine-controller-manager is offline. Cluster autoscaler operations would be suspended.")
+		return err
+	}
+
 	for _, machineDeployment := range mcm.machinedeployments {
 		err := mcm.mcmManager.resetPriorityForNotToBeDeletedMachines(machineDeployment.Name)
 		if err != nil {
