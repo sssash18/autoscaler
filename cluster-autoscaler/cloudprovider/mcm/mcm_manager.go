@@ -27,6 +27,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/fields"
+	v1appslister "k8s.io/client-go/listers/apps/v1"
 	"math/rand"
 	"net/http"
 	"os"
@@ -115,6 +118,7 @@ type McmManager struct {
 	namespace               string
 	interrupt               chan struct{}
 	discoveryOpts           cloudprovider.NodeGroupDiscoveryOptions
+	deploymentLister        v1appslister.DeploymentLister
 	machineClient           machineapi.MachineV1alpha1Interface
 	machineDeploymentLister machinelisters.MachineDeploymentLister
 	machineSetLister        machinelisters.MachineSetLister
@@ -167,6 +171,15 @@ func createMCMManagerInternal(discoveryOpts cloudprovider.NodeGroupDiscoveryOpti
 	controlCoreClientBuilder := CoreControllerClientBuilder{
 		ClientConfig: controlKubeconfig,
 	}
+
+	deployKubeClient := controlCoreClientBuilder.ClientOrDie("deploykubeclient")
+	selector := fields.Everything()
+	deploymentListWatch := cache.NewListWatchFromClient(deployKubeClient.AppsV1().RESTClient(), "deployments", namespace, selector)
+	store, reflector := cache.NewNamespaceKeyedIndexerAndReflector(deploymentListWatch, &appsv1.Deployment{}, time.Hour)
+	deploymentLister := v1appslister.NewDeploymentLister(store)
+	stopCh := make(chan struct{})
+	go reflector.Run(stopCh)
+
 	availableResources, err := getAvailableResources(controlCoreClientBuilder)
 	if err != nil {
 		return nil, err
@@ -232,6 +245,7 @@ func createMCMManagerInternal(discoveryOpts cloudprovider.NodeGroupDiscoveryOpti
 		m := &McmManager{
 			namespace:               namespace,
 			interrupt:               make(chan struct{}),
+			deploymentLister:        deploymentLister,
 			machineClient:           controlMachineClient,
 			machineClassLister:      machineClassLister,
 			machineLister:           machineSharedInformers.Machines().Lister(),
