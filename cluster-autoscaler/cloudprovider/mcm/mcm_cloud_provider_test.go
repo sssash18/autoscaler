@@ -20,6 +20,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	v1 "k8s.io/api/apps/v1"
+	errors2 "k8s.io/apimachinery/pkg/api/errors"
+	caerror "k8s.io/autoscaler/cluster-autoscaler/utils/errors"
 	"math"
 	"strings"
 	"testing"
@@ -51,13 +54,14 @@ type setup struct {
 	machines                          []*v1alpha1.Machine
 	machineSets                       []*v1alpha1.MachineSet
 	machineDeployments                []*v1alpha1.MachineDeployment
+	deployments                       []*v1.Deployment
 	machineClasses                    []*v1alpha1.MachineClass
 	nodeGroups                        []string
 	targetCoreFakeResourceActions     *customfake.ResourceActions
 	controlMachineFakeResourceActions *customfake.ResourceActions
 }
 
-func setupEnv(setup *setup) ([]runtime.Object, []runtime.Object) {
+func setupEnv(setup *setup) ([]runtime.Object, []runtime.Object, []runtime.Object) {
 	var controlMachineObjects []runtime.Object
 	for _, o := range setup.machines {
 		controlMachineObjects = append(controlMachineObjects, o)
@@ -78,7 +82,12 @@ func setupEnv(setup *setup) ([]runtime.Object, []runtime.Object) {
 		targetCoreObjects = append(targetCoreObjects, o)
 	}
 
-	return controlMachineObjects, targetCoreObjects
+	var appsControlObjects []runtime.Object
+
+	for _, o := range setup.deployments {
+		appsControlObjects = append(appsControlObjects, o)
+	}
+	return controlMachineObjects, targetCoreObjects, appsControlObjects
 }
 
 func TestDeleteNodes(t *testing.T) {
@@ -279,8 +288,8 @@ func TestDeleteNodes(t *testing.T) {
 			g := NewWithT(t)
 			stop := make(chan struct{})
 			defer close(stop)
-			controlMachineObjects, targetCoreObjects := setupEnv(&entry.setup)
-			m, trackers, hasSyncedCacheFns := createMcmManager(t, stop, testNamespace, nil, controlMachineObjects, targetCoreObjects)
+			controlMachineObjects, targetCoreObjects, _ := setupEnv(&entry.setup)
+			m, trackers, hasSyncedCacheFns := createMcmManager(t, stop, testNamespace, nil, controlMachineObjects, targetCoreObjects, nil)
 			defer trackers.Stop()
 			waitForCacheSync(t, stop, hasSyncedCacheFns)
 
@@ -341,12 +350,53 @@ func TestRefresh(t *testing.T) {
 	}
 	table := []data{
 		{
+
+			"should set available replicas of mcm as zero",
+			setup{
+				nodes:              newNodes(1, "fakeID", []bool{false}),
+				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
+				machineDeployments: newMachineDeployments(1, 1, nil, nil, nil),
+				nodeGroups:         []string{nodeGroup2},
+				deployments:        newDeployments(0),
+			},
+			expect{
+				err: caerror.NewAutoscalerError(caerror.CloudProviderError, "machine-controller-manager is offline. Cluster autoscaler operations would be suspended."),
+			},
+		},
+		{
+
+			"should delete the deployment of mcm",
+			setup{
+				nodes:              newNodes(1, "fakeID", []bool{false}),
+				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
+				machineDeployments: newMachineDeployments(1, 1, nil, nil, nil),
+				nodeGroups:         []string{nodeGroup2},
+			},
+			expect{
+				err: &errors2.StatusError{
+					ErrStatus: metav1.Status{
+						Status:  "Failure",
+						Message: "deployment.apps \"machine-controller-manager\" not found",
+						Reason:  "NotFound",
+						Details: &metav1.StatusDetails{
+							Name:  "machine-controller-manager",
+							Group: "apps",
+							Kind:  "deployment",
+						},
+						Code: 404,
+					},
+				},
+			},
+		},
+		{
+
 			"should reset priority of a machine with node without ToBeDeletedTaint to 3",
 			setup{
 				nodes:              newNodes(1, "fakeID", []bool{false}),
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
 				machineDeployments: newMachineDeployments(1, 1, nil, nil, nil),
 				nodeGroups:         []string{nodeGroup2},
+				deployments:        newDeployments(1),
 			},
 			expect{
 				machines: newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"3"}, []bool{false}),
@@ -360,6 +410,7 @@ func TestRefresh(t *testing.T) {
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
 				machineDeployments: newMachineDeployments(1, 1, nil, nil, nil),
 				nodeGroups:         []string{nodeGroup2},
+				deployments:        newDeployments(1),
 			},
 			expect{
 				machines: newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
@@ -377,7 +428,8 @@ func TestRefresh(t *testing.T) {
 						Update: customfake.CreateFakeResponse(math.MaxInt32, mcUpdateErrorMsg, 0),
 					},
 				},
-				nodeGroups: []string{nodeGroup2},
+				nodeGroups:  []string{nodeGroup2},
+				deployments: newDeployments(1),
 			},
 			expect{
 				machines: []*v1alpha1.Machine{newMachine("machine-1", "fakeID-1", nil, "machinedeployment-1", "machineset-1", "1", false, true)},
@@ -392,8 +444,8 @@ func TestRefresh(t *testing.T) {
 			g := NewWithT(t)
 			stop := make(chan struct{})
 			defer close(stop)
-			controlMachineObjects, targetCoreObjects := setupEnv(&entry.setup)
-			m, trackers, hasSyncedCacheFns := createMcmManager(t, stop, testNamespace, entry.setup.nodeGroups, controlMachineObjects, targetCoreObjects)
+			controlMachineObjects, targetCoreObjects, appsControlObjects := setupEnv(&entry.setup)
+			m, trackers, hasSyncedCacheFns := createMcmManager(t, stop, testNamespace, entry.setup.nodeGroups, controlMachineObjects, targetCoreObjects, appsControlObjects)
 			defer trackers.Stop()
 			waitForCacheSync(t, stop, hasSyncedCacheFns)
 
@@ -493,8 +545,8 @@ func TestNodes(t *testing.T) {
 			g := NewWithT(t)
 			stop := make(chan struct{})
 			defer close(stop)
-			controlMachineObjects, targetCoreObjects := setupEnv(&entry.setup)
-			m, trackers, hasSyncedCacheFns := createMcmManager(t, stop, testNamespace, nil, controlMachineObjects, targetCoreObjects)
+			controlMachineObjects, targetCoreObjects, _ := setupEnv(&entry.setup)
+			m, trackers, hasSyncedCacheFns := createMcmManager(t, stop, testNamespace, nil, controlMachineObjects, targetCoreObjects, nil)
 			defer trackers.Stop()
 			waitForCacheSync(t, stop, hasSyncedCacheFns)
 

@@ -18,6 +18,8 @@ package mcm
 
 import (
 	"fmt"
+	v1 "k8s.io/api/apps/v1"
+	"k8s.io/utils/pointer"
 	"testing"
 	"time"
 
@@ -35,6 +37,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	customfake "k8s.io/autoscaler/cluster-autoscaler/cloudprovider/mcm/fakeclient"
 	deletetaint "k8s.io/autoscaler/cluster-autoscaler/utils/taints"
+	appsv1informers "k8s.io/client-go/informers"
 	coreinformers "k8s.io/client-go/informers"
 )
 
@@ -220,11 +223,28 @@ func newMachineStatus(statusTemplate *v1alpha1.MachineStatus) *v1alpha1.MachineS
 	return statusTemplate.DeepCopy()
 }
 
+func newDeployments(availableReplicas int32) []*v1.Deployment {
+	return []*v1.Deployment{
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "machine-controller-manager",
+				Namespace: testNamespace,
+			},
+			Spec: v1.DeploymentSpec{
+				Replicas: pointer.Int32(1),
+			},
+			Status: v1.DeploymentStatus{
+				AvailableReplicas: availableReplicas,
+			},
+		},
+	}
+}
+
 func createMcmManager(
 	t *testing.T,
 	stop <-chan struct{},
 	namespace string,
-	nodeGroups []string, controlMachineObjects, targetCoreObjects []runtime.Object,
+	nodeGroups []string, controlMachineObjects, targetCoreObjects, controlAppsObjects []runtime.Object,
 ) (*McmManager, *customfake.FakeObjectTrackers, []cache.InformerSynced) {
 	g := gomega.NewWithT(t)
 	fakeControlMachineClient, controlMachineObjectTracker := customfake.NewMachineClientSet(controlMachineObjects...)
@@ -232,12 +252,13 @@ func createMcmManager(
 		Fake: &fakeControlMachineClient.Fake,
 	}
 	fakeTargetCoreClient, targetCoreObjectTracker := customfake.NewCoreClientSet(targetCoreObjects...)
+	fakeControlAppsClient, controlAppsObjectTracker := customfake.NewAppsV1ClientSet(controlAppsObjects...)
 	fakeObjectTrackers := customfake.NewFakeObjectTrackers(
 		controlMachineObjectTracker,
 		targetCoreObjectTracker,
+		controlAppsObjectTracker,
 	)
 	fakeObjectTrackers.Start()
-
 	coreTargetInformerFactory := coreinformers.NewFilteredSharedInformerFactory(
 		fakeTargetCoreClient,
 		100*time.Millisecond,
@@ -247,6 +268,15 @@ func createMcmManager(
 	defer coreTargetInformerFactory.Start(stop)
 	coreTargetSharedInformers := coreTargetInformerFactory.Core().V1()
 	nodes := coreTargetSharedInformers.Nodes()
+
+	appsControlInformerFactory := appsv1informers.NewFilteredSharedInformerFactory(
+		fakeControlAppsClient,
+		100*time.Millisecond,
+		namespace,
+		nil,
+	)
+	defer appsControlInformerFactory.Start(stop)
+	appsControlSharedInformers := appsControlInformerFactory.Apps().V1()
 
 	controlMachineInformerFactory := machineinformers.NewFilteredSharedInformerFactory(
 		fakeControlMachineClient,
@@ -272,6 +302,7 @@ func createMcmManager(
 		discoveryOpts: cloudprovider.NodeGroupDiscoveryOptions{
 			NodeGroupSpecs: nodeGroups,
 		},
+		deploymentLister:        appsControlSharedInformers.Deployments().Lister(),
 		machineClient:           fakeTypedMachineClient,
 		machineDeploymentLister: machineDeployments.Lister(),
 		machineSetLister:        machineSets.Lister(),
@@ -288,6 +319,7 @@ func createMcmManager(
 		machineSets.Informer().HasSynced,
 		machineDeployments.Informer().HasSynced,
 		machineClasses.Informer().HasSynced,
+		appsControlSharedInformers.Deployments().Informer().HasSynced,
 	}
 
 	return &mcmManager, fakeObjectTrackers, hasSyncedCachesFns

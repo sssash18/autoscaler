@@ -34,7 +34,6 @@ import (
 	"k8s.io/autoscaler/cluster-autoscaler/utils/errors"
 	"k8s.io/klog/v2"
 	schedulerframework "k8s.io/kubernetes/pkg/scheduler/framework"
-	"os"
 	"strings"
 )
 
@@ -195,16 +194,16 @@ func (mcm *mcmCloudProvider) GetResourceLimiter() (*cloudprovider.ResourceLimite
 // In particular the list of node groups returned by NodeGroups can change as a result of CloudProvider.Refresh().
 func (mcm *mcmCloudProvider) Refresh() error {
 
-	namespace := os.Getenv("CONTROL_NAMESPACE")
+	namespace := mcm.mcmManager.namespace
 	deployment, err := mcm.mcmManager.deploymentLister.Deployments(namespace).Get("machine-controller-manager")
 	if err != nil {
-		klog.Errorf("failed to get machine-controller-manager deployment: ", err.Error())
+		klog.Errorf("failed to get machine-controller-manager deployment: %v", err.Error())
 		return err
 	}
 
 	if !(deployment.Status.AvailableReplicas >= 1) {
 		klog.Errorf("machine-controller-manager is offline. Cluster autoscaler operations would be suspended.")
-		return err
+		return errors.NewAutoscalerError(errors.CloudProviderError, "machine-controller-manager is offline. Cluster autoscaler operations would be suspended.")
 	}
 
 	for _, machineDeployment := range mcm.machinedeployments {
