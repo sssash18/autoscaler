@@ -484,11 +484,11 @@ func NewCoreClientSet(objects ...runtime.Object) (*Clientset, *FakeObjectTracker
 	return cs, o
 }
 
-// NewAppsV1ClientSet returns a clientset that will respond with the provided objects.
+// NewAppsClientSet returns a clientset that will respond with the provided objects.
 // It's backed by a very simple object tracker that processes creates, updates and deletions as-is,
 // without applying any validations and/or defaults. It shouldn't be considered a replacement
 // for a real clientset and is mostly useful in simple unit tests.
-func NewAppsV1ClientSet(objects ...runtime.Object) (*Clientset, *FakeObjectTracker) {
+func NewAppsClientSet(objects ...runtime.Object) (*Clientset, *FakeObjectTracker) {
 
 	var scheme = runtime.NewScheme()
 	var codecs = serializer.NewCodecFactory(scheme)

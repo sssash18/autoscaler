@@ -197,13 +197,11 @@ func (mcm *mcmCloudProvider) Refresh() error {
 	namespace := mcm.mcmManager.namespace
 	deployment, err := mcm.mcmManager.deploymentLister.Deployments(namespace).Get("machine-controller-manager")
 	if err != nil {
-		klog.Errorf("failed to get machine-controller-manager deployment: %v", err.Error())
-		return err
+		return fmt.Errorf("failed to get machine-controller-manager deployment: %v", err.Error())
 	}
 
 	if !(deployment.Status.AvailableReplicas >= 1) {
-		klog.Errorf("machine-controller-manager is offline. Cluster autoscaler operations would be suspended.")
-		return errors.NewAutoscalerError(errors.CloudProviderError, "machine-controller-manager is offline. Cluster autoscaler operations would be suspended.")
+		return fmt.Errorf("machine-controller-manager is offline. Cluster autoscaler operations would be suspended.")
 	}
 
 	for _, machineDeployment := range mcm.machinedeployments {

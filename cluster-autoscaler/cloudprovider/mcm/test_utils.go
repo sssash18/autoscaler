@@ -18,7 +18,7 @@ package mcm
 
 import (
 	"fmt"
-	v1 "k8s.io/api/apps/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/utils/pointer"
 	"testing"
 	"time"
@@ -198,7 +198,7 @@ func newNodes(
 		}
 		node := &corev1.Node{
 			TypeMeta: metav1.TypeMeta{
-				APIVersion: "v1",
+				APIVersion: "appsv1",
 				Kind:       "Node",
 			},
 			ObjectMeta: metav1.ObjectMeta{
@@ -223,19 +223,17 @@ func newMachineStatus(statusTemplate *v1alpha1.MachineStatus) *v1alpha1.MachineS
 	return statusTemplate.DeepCopy()
 }
 
-func newDeployments(availableReplicas int32) []*v1.Deployment {
-	return []*v1.Deployment{
-		{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "machine-controller-manager",
-				Namespace: testNamespace,
-			},
-			Spec: v1.DeploymentSpec{
-				Replicas: pointer.Int32(1),
-			},
-			Status: v1.DeploymentStatus{
-				AvailableReplicas: availableReplicas,
-			},
+func newMCMDeployment(availableReplicas int32) *appsv1.Deployment {
+	return &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "machine-controller-manager",
+			Namespace: testNamespace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: pointer.Int32(1),
+		},
+		Status: appsv1.DeploymentStatus{
+			AvailableReplicas: availableReplicas,
 		},
 	}
 }
@@ -252,7 +250,7 @@ func createMcmManager(
 		Fake: &fakeControlMachineClient.Fake,
 	}
 	fakeTargetCoreClient, targetCoreObjectTracker := customfake.NewCoreClientSet(targetCoreObjects...)
-	fakeControlAppsClient, controlAppsObjectTracker := customfake.NewAppsV1ClientSet(controlAppsObjects...)
+	fakeControlAppsClient, controlAppsObjectTracker := customfake.NewAppsClientSet(controlAppsObjects...)
 	fakeObjectTrackers := customfake.NewFakeObjectTrackers(
 		controlMachineObjectTracker,
 		targetCoreObjectTracker,

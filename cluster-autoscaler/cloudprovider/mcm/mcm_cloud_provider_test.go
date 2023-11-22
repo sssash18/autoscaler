@@ -21,8 +21,6 @@ import (
 	"errors"
 	"fmt"
 	v1 "k8s.io/api/apps/v1"
-	errors2 "k8s.io/apimachinery/pkg/api/errors"
-	caerror "k8s.io/autoscaler/cluster-autoscaler/utils/errors"
 	"math"
 	"strings"
 	"testing"
@@ -54,7 +52,7 @@ type setup struct {
 	machines                          []*v1alpha1.Machine
 	machineSets                       []*v1alpha1.MachineSet
 	machineDeployments                []*v1alpha1.MachineDeployment
-	deployments                       []*v1.Deployment
+	deployments                       *v1.Deployment
 	machineClasses                    []*v1alpha1.MachineClass
 	nodeGroups                        []string
 	targetCoreFakeResourceActions     *customfake.ResourceActions
@@ -84,9 +82,10 @@ func setupEnv(setup *setup) ([]runtime.Object, []runtime.Object, []runtime.Objec
 
 	var appsControlObjects []runtime.Object
 
-	for _, o := range setup.deployments {
-		appsControlObjects = append(appsControlObjects, o)
+	if setup.deployments != nil {
+		appsControlObjects = append(appsControlObjects, setup.deployments)
 	}
+
 	return controlMachineObjects, targetCoreObjects, appsControlObjects
 }
 
@@ -357,15 +356,15 @@ func TestRefresh(t *testing.T) {
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
 				machineDeployments: newMachineDeployments(1, 1, nil, nil, nil),
 				nodeGroups:         []string{nodeGroup2},
-				deployments:        newDeployments(0),
+				deployments:        newMCMDeployment(0),
 			},
 			expect{
-				err: caerror.NewAutoscalerError(caerror.CloudProviderError, "machine-controller-manager is offline. Cluster autoscaler operations would be suspended."),
+				err: fmt.Errorf("machine-controller-manager is offline. Cluster autoscaler operations would be suspended."),
 			},
 		},
 		{
 
-			"should delete the deployment of mcm",
+			"should get no deployment of mcm",
 			setup{
 				nodes:              newNodes(1, "fakeID", []bool{false}),
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
@@ -373,19 +372,7 @@ func TestRefresh(t *testing.T) {
 				nodeGroups:         []string{nodeGroup2},
 			},
 			expect{
-				err: &errors2.StatusError{
-					ErrStatus: metav1.Status{
-						Status:  "Failure",
-						Message: "deployment.apps \"machine-controller-manager\" not found",
-						Reason:  "NotFound",
-						Details: &metav1.StatusDetails{
-							Name:  "machine-controller-manager",
-							Group: "apps",
-							Kind:  "deployment",
-						},
-						Code: 404,
-					},
-				},
+				err: fmt.Errorf("failed to get machine-controller-manager deployment: deployment.apps \"machine-controller-manager\" not found"),
 			},
 		},
 		{
@@ -396,7 +383,7 @@ func TestRefresh(t *testing.T) {
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
 				machineDeployments: newMachineDeployments(1, 1, nil, nil, nil),
 				nodeGroups:         []string{nodeGroup2},
-				deployments:        newDeployments(1),
+				deployments:        newMCMDeployment(1),
 			},
 			expect{
 				machines: newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"3"}, []bool{false}),
@@ -410,7 +397,7 @@ func TestRefresh(t *testing.T) {
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
 				machineDeployments: newMachineDeployments(1, 1, nil, nil, nil),
 				nodeGroups:         []string{nodeGroup2},
-				deployments:        newDeployments(1),
+				deployments:        newMCMDeployment(1),
 			},
 			expect{
 				machines: newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
@@ -429,7 +416,7 @@ func TestRefresh(t *testing.T) {
 					},
 				},
 				nodeGroups:  []string{nodeGroup2},
-				deployments: newDeployments(1),
+				deployments: newMCMDeployment(1),
 			},
 			expect{
 				machines: []*v1alpha1.Machine{newMachine("machine-1", "fakeID-1", nil, "machinedeployment-1", "machineset-1", "1", false, true)},
