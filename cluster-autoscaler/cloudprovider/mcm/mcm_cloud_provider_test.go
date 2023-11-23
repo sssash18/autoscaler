@@ -52,7 +52,7 @@ type setup struct {
 	machines                          []*v1alpha1.Machine
 	machineSets                       []*v1alpha1.MachineSet
 	machineDeployments                []*v1alpha1.MachineDeployment
-	deployments                       *v1.Deployment
+	mcmDeployment                     *v1.Deployment
 	machineClasses                    []*v1alpha1.MachineClass
 	nodeGroups                        []string
 	targetCoreFakeResourceActions     *customfake.ResourceActions
@@ -82,8 +82,8 @@ func setupEnv(setup *setup) ([]runtime.Object, []runtime.Object, []runtime.Objec
 
 	var appsControlObjects []runtime.Object
 
-	if setup.deployments != nil {
-		appsControlObjects = append(appsControlObjects, setup.deployments)
+	if setup.mcmDeployment != nil {
+		appsControlObjects = append(appsControlObjects, setup.mcmDeployment)
 	}
 
 	return controlMachineObjects, targetCoreObjects, appsControlObjects
@@ -356,7 +356,7 @@ func TestRefresh(t *testing.T) {
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
 				machineDeployments: newMachineDeployments(1, 1, nil, nil, nil),
 				nodeGroups:         []string{nodeGroup2},
-				deployments:        newMCMDeployment(0),
+				mcmDeployment:      newMCMDeployment(0),
 			},
 			expect{
 				err: fmt.Errorf("machine-controller-manager is offline. Cluster autoscaler operations would be suspended."),
@@ -383,7 +383,7 @@ func TestRefresh(t *testing.T) {
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
 				machineDeployments: newMachineDeployments(1, 1, nil, nil, nil),
 				nodeGroups:         []string{nodeGroup2},
-				deployments:        newMCMDeployment(1),
+				mcmDeployment:      newMCMDeployment(1),
 			},
 			expect{
 				machines: newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"3"}, []bool{false}),
@@ -397,7 +397,7 @@ func TestRefresh(t *testing.T) {
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
 				machineDeployments: newMachineDeployments(1, 1, nil, nil, nil),
 				nodeGroups:         []string{nodeGroup2},
-				deployments:        newMCMDeployment(1),
+				mcmDeployment:      newMCMDeployment(1),
 			},
 			expect{
 				machines: newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
@@ -415,8 +415,8 @@ func TestRefresh(t *testing.T) {
 						Update: customfake.CreateFakeResponse(math.MaxInt32, mcUpdateErrorMsg, 0),
 					},
 				},
-				nodeGroups:  []string{nodeGroup2},
-				deployments: newMCMDeployment(1),
+				nodeGroups:    []string{nodeGroup2},
+				mcmDeployment: newMCMDeployment(1),
 			},
 			expect{
 				machines: []*v1alpha1.Machine{newMachine("machine-1", "fakeID-1", nil, "machinedeployment-1", "machineset-1", "1", false, true)},

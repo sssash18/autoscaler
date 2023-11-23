@@ -181,7 +181,7 @@ func createMCMManagerInternal(discoveryOpts cloudprovider.NodeGroupDiscoveryOpti
 
 	controlAppsClient := controlClientBuilder.ClientOrDie("control-apps-client")
 	selector := fields.Everything()
-	deploymentListWatch := cache.NewListWatchFromClient(controlAppsClient.AppsV1().RESTClient(), "deployments", namespace, selector)
+	deploymentListWatch := cache.NewListWatchFromClient(controlAppsClient.AppsV1().RESTClient(), "mcmDeployment", namespace, selector)
 	store, reflector := cache.NewNamespaceKeyedIndexerAndReflector(deploymentListWatch, &appsv1.Deployment{}, time.Hour)
 	deploymentLister := v1appslister.NewDeploymentLister(store)
 	stopCh := make(chan struct{})
