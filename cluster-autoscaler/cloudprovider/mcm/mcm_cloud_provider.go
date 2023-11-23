@@ -190,10 +190,8 @@ func (mcm *mcmCloudProvider) GetResourceLimiter() (*cloudprovider.ResourceLimite
 	return mcm.resourceLimiter, nil
 }
 
-// Refresh is called before every main loop and can be used to dynamically update cloud provider state.
-// In particular the list of node groups returned by NodeGroups can change as a result of CloudProvider.Refresh().
-func (mcm *mcmCloudProvider) Refresh() error {
-
+// checkMCMAvailableReplicas checks if mcm is online
+func (mcm *mcmCloudProvider) checkMCMAvailableReplicas() error {
 	namespace := mcm.mcmManager.namespace
 	deployment, err := mcm.mcmManager.deploymentLister.Deployments(namespace).Get("machine-controller-manager")
 	if err != nil {
@@ -202,6 +200,18 @@ func (mcm *mcmCloudProvider) Refresh() error {
 
 	if !(deployment.Status.AvailableReplicas >= 1) {
 		return fmt.Errorf("machine-controller-manager is offline. Cluster autoscaler operations would be suspended.")
+	}
+
+	return nil
+}
+
+// Refresh is called before every main loop and can be used to dynamically update cloud provider state.
+// In particular the list of node groups returned by NodeGroups can change as a result of CloudProvider.Refresh().
+func (mcm *mcmCloudProvider) Refresh() error {
+
+	err := mcm.checkMCMAvailableReplicas()
+	if err != nil {
+		return err
 	}
 
 	for _, machineDeployment := range mcm.machinedeployments {

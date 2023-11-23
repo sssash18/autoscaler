@@ -350,7 +350,7 @@ func TestRefresh(t *testing.T) {
 	table := []data{
 		{
 
-			"should set available replicas of mcm as zero",
+			"should return an error if MCM has zero available replicas",
 			setup{
 				nodes:              newNodes(1, "fakeID", []bool{false}),
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
@@ -364,7 +364,7 @@ func TestRefresh(t *testing.T) {
 		},
 		{
 
-			"should get no deployment of mcm",
+			"should  return an error if MCM deployment is not found",
 			setup{
 				nodes:              newNodes(1, "fakeID", []bool{false}),
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
