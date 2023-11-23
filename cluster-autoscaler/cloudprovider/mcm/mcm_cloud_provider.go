@@ -197,7 +197,7 @@ func (mcm *mcmCloudProvider) checkMCMAvailableReplicas() error {
 		return fmt.Errorf("failed to get machine-controller-manager deployment: %v", err.Error())
 	}
 
-	if !(deployment.Status.AvailableReplicas >= 1) {
+	if deployment.Status.AvailableReplicas == 0 {
 		return fmt.Errorf("machine-controller-manager is offline. Cluster autoscaler operations would be suspended.")
 	}
 
