@@ -190,7 +190,6 @@ func (mcm *mcmCloudProvider) GetResourceLimiter() (*cloudprovider.ResourceLimite
 	return mcm.resourceLimiter, nil
 }
 
-// checkMCMAvailableReplicas checks if mcm is online
 func (mcm *mcmCloudProvider) checkMCMAvailableReplicas() error {
 	namespace := mcm.mcmManager.namespace
 	deployment, err := mcm.mcmManager.deploymentLister.Deployments(namespace).Get("machine-controller-manager")

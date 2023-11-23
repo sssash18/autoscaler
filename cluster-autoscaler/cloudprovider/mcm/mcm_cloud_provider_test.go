@@ -364,7 +364,7 @@ func TestRefresh(t *testing.T) {
 		},
 		{
 
-			"should  return an error if MCM deployment is not found",
+			"should return an error if MCM deployment is not found",
 			setup{
 				nodes:              newNodes(1, "fakeID", []bool{false}),
 				machines:           newMachines(1, "fakeID", nil, "machinedeployment-1", "machineset-1", []string{"1"}, []bool{false}),
