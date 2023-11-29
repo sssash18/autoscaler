@@ -27,8 +27,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	appsv1 "k8s.io/api/apps/v1"
-	"k8s.io/apimachinery/pkg/fields"
 	v1appslister "k8s.io/client-go/listers/apps/v1"
 	"math/rand"
 	"net/http"
@@ -60,6 +58,7 @@ import (
 	"k8s.io/autoscaler/cluster-autoscaler/utils/gpu"
 	"k8s.io/autoscaler/cluster-autoscaler/utils/taints"
 	"k8s.io/client-go/discovery"
+	appsinformers "k8s.io/client-go/informers"
 	coreinformers "k8s.io/client-go/informers"
 	corelisters "k8s.io/client-go/listers/core/v1"
 	"k8s.io/client-go/rest"
@@ -180,12 +179,8 @@ func createMCMManagerInternal(discoveryOpts cloudprovider.NodeGroupDiscoveryOpti
 	}
 
 	controlAppsClient := controlClientBuilder.ClientOrDie("control-apps-client")
-	selector := fields.Everything()
-	deploymentListWatch := cache.NewListWatchFromClient(controlAppsClient.AppsV1().RESTClient(), "mcmDeployment", namespace, selector)
-	store, reflector := cache.NewNamespaceKeyedIndexerAndReflector(deploymentListWatch, &appsv1.Deployment{}, time.Hour)
-	deploymentLister := v1appslister.NewDeploymentLister(store)
-	stopCh := make(chan struct{})
-	go reflector.Run(stopCh)
+	appsInformerFactory := appsinformers.NewSharedInformerFactory(controlAppsClient, *minResyncPeriod)
+	deploymentLister := appsInformerFactory.Apps().V1().Deployments().Lister()
 
 	if availableResources[machineGVR] && availableResources[machineSetGVR] && availableResources[machineDeploymentGVR] {
 		var (
@@ -259,6 +254,7 @@ func createMCMManagerInternal(discoveryOpts cloudprovider.NodeGroupDiscoveryOpti
 
 		targetCoreInformerFactory.Start(m.interrupt)
 		controlMachineInformerFactory.Start(m.interrupt)
+		appsInformerFactory.Start(m.interrupt)
 
 		syncFuncs = append(
 			syncFuncs,
