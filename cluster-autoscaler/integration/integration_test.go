@@ -395,9 +395,9 @@ func (driver *Driver) controllerTests() {
 				flag = true
 			})
 		})
-	})
+	})git
 	Describe("testing CA behaviour when MCM is offline", func() {
-		Context("When the availble replicas of MCM are zero.", func() {
+		Context("When the available replicas of MCM are zero.", func() {
 			It("The CA should suspend it's operations as long as MCM is offline", func() {
 				By("Scaling down the MCM")
 				deployment, err := driver.controlCluster.Clientset.AppsV1().Deployments(controlClusterNamespace).Get(context.Background(), "machine-controller-manager", metav1.GetOptions{})
