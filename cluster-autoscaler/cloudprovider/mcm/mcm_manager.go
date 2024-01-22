@@ -521,7 +521,7 @@ func (m *McmManager) prioritizeMachinesForDeletion(targetMachineRefs []*Ref, mdN
 				klog.Errorf("Unable to fetch Machine object %s, Error: %v", machineRef.Name, err)
 				return true, err
 			}
-			if isMachineTerminating(mc) {
+			if isMachineFailedOrTerminating(mc) {
 				return false, nil
 			}
 			expectedToTerminateMachineNodePairs[mc.Name] = mc.Labels["node"]
@@ -988,10 +988,10 @@ func buildGenericLabels(template *nodeTemplate, nodeName string) map[string]stri
 	return result
 }
 
-// isMachineTerminating returns true if machine is already being terminated or considered for termination by autoscaler.
-func isMachineTerminating(machine *v1alpha1.Machine) bool {
-	if !machine.GetDeletionTimestamp().IsZero() {
-		klog.Infof("Machine %q is already being terminated, and hence skipping the deletion", machine.Name)
+// isMachineFailedOrTerminating returns true if machine is already being terminated or considered for termination by autoscaler.
+func isMachineFailedOrTerminating(machine *v1alpha1.Machine) bool {
+	if !machine.GetDeletionTimestamp().IsZero() || machine.Status.LastOperation.State == v1alpha1.MachineStateFailed {
+		klog.Infof("Machine %q is already being failed or terminated, and hence skipping the deletion", machine.Name)
 		return true
 	}
 	return false
