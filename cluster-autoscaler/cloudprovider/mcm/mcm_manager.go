@@ -525,11 +525,7 @@ func (m *McmManager) prioritizeMachinesForDeletion(targetMachineRefs []*Ref, mdN
 				return false, nil
 			}
 			expectedToTerminateMachineNodePairs[mc.Name] = mc.Labels["node"]
-			retry, err := m.updateAnnotationOnMachine(ctx, mc.Name, machinePriorityAnnotation, "1")
-			if err == nil {
-				klog.Infof("Machine %s of machineDeployment %s marked with priority 1 successfully", machineRef.Name, mdName)
-			}
-			return retry, err
+			return m.updateAnnotationOnMachine(ctx, mc.Name, machinePriorityAnnotation, "1")
 		}, "Machine", "update", machineRef.Name); err != nil {
 			klog.Errorf("could not prioritize machine %s for deletion, aborting scale in of machine deployment, Error: %v", machineRef.Name, err)
 			return 0, fmt.Errorf("could not prioritize machine %s for deletion, aborting scale in of machine deployment, Error: %v", machineRef.Name, err)
@@ -562,6 +558,9 @@ func (m *McmManager) updateAnnotationOnMachine(ctx context.Context, mcName strin
 		clone.Annotations[key] = val
 	}
 	_, err = m.machineClient.Machines(machine.Namespace).Update(ctx, clone, metav1.UpdateOptions{})
+	if err == nil {
+		klog.Infof("Machine %s marked with priority 1 successfully", mcName)
+	}
 	return true, err
 }
 
