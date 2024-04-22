@@ -18,4 +18,8 @@ limitations under the License.
 
 package v1alpha1
 
+<<<<<<<< HEAD:balancer/pkg/client/clientset/versioned/typed/balancer.x-k8s.io/v1alpha1/generated_expansion.go
+type BalancerExpansion interface{}
+========
 type ClusterTrustBundleExpansion interface{}
+>>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/k8s.io/client-go/kubernetes/typed/certificates/v1alpha1/generated_expansion.go

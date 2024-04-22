@@ -1,0 +1,8 @@
+# See the OWNERS docs at https://go.k8s.io/owners
+
+approvers:
+<<<<<<<< HEAD:cluster-autoscaler/vendor/k8s.io/apiextensions-apiserver/pkg/features/OWNERS
+  - feature-approvers
+========
+  - apelisse
+>>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/client-go/openapi/OWNERS

@@ -26,6 +26,7 @@ import (
 	v1alpha2 "k8s.io/api/resource/v1alpha2"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	resourcev1alpha2 "k8s.io/client-go/applyconfigurations/resource/v1alpha2"
@@ -38,9 +39,15 @@ type FakeResourceClaims struct {
 	ns   string
 }
 
+<<<<<<<< HEAD:vertical-pod-autoscaler/vendor/k8s.io/client-go/kubernetes/typed/resource/v1alpha1/fake/fake_resourceclaim.go
+var resourceclaimsResource = schema.GroupVersionResource{Group: "resource.k8s.io", Version: "v1alpha1", Resource: "resourceclaims"}
+
+var resourceclaimsKind = schema.GroupVersionKind{Group: "resource.k8s.io", Version: "v1alpha1", Kind: "ResourceClaim"}
+========
 var resourceclaimsResource = v1alpha2.SchemeGroupVersion.WithResource("resourceclaims")
 
 var resourceclaimsKind = v1alpha2.SchemeGroupVersion.WithKind("ResourceClaim")
+>>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/k8s.io/client-go/kubernetes/typed/resource/v1alpha2/fake/fake_resourceclaim.go
 
 // Get takes name of the resourceClaim, and returns the corresponding resourceClaim object, and an error if there is any.
 func (c *FakeResourceClaims) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha2.ResourceClaim, err error) {
