@@ -48,13 +48,6 @@ var (
 		metrics.ALPHA,
 		"")
 
-	nodeSwapUsageDesc = metrics.NewDesc("node_swap_usage_bytes",
-		"Current swap usage of the node in bytes. Reported only on non-windows systems",
-		nil,
-		nil,
-		metrics.ALPHA,
-		"")
-
 	containerCPUUsageDesc = metrics.NewDesc("container_cpu_usage_seconds_total",
 		"Cumulative cpu time consumed by the container in core-seconds",
 		[]string{"container", "pod", "namespace"},
@@ -76,13 +69,6 @@ var (
 		metrics.ALPHA,
 		"")
 
-	containerSwapUsageDesc = metrics.NewDesc("container_swap_usage_bytes",
-		"Current amount of the container swap usage in bytes. Reported only on non-windows systems",
-		[]string{"container", "pod", "namespace"},
-		nil,
-		metrics.ALPHA,
-		"")
-
 	podCPUUsageDesc = metrics.NewDesc("pod_cpu_usage_seconds_total",
 		"Cumulative cpu time consumed by the pod in core-seconds",
 		[]string{"pod", "namespace"},
@@ -95,13 +81,6 @@ var (
 		[]string{"pod", "namespace"},
 		nil,
 		metrics.STABLE,
-		"")
-
-	podSwapUsageDesc = metrics.NewDesc("pod_swap_usage_bytes",
-		"Current amount of the pod swap usage in bytes. Reported only on non-windows systems",
-		[]string{"pod", "namespace"},
-		nil,
-		metrics.ALPHA,
 		"")
 
 	podSwapUsageDesc = metrics.NewDesc("pod_swap_usage_bytes",

@@ -88,11 +88,7 @@ func (client DedicatedHostGroupsClient) CreateOrUpdatePreparer(ctx context.Conte
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/dedicatedhostgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/dedicatedhostgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -170,11 +166,7 @@ func (client DedicatedHostGroupsClient) DeletePreparer(ctx context.Context, reso
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/dedicatedhostgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/dedicatedhostgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -252,11 +244,7 @@ func (client DedicatedHostGroupsClient) GetPreparer(ctx context.Context, resourc
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/dedicatedhostgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/dedicatedhostgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -339,11 +327,7 @@ func (client DedicatedHostGroupsClient) ListByResourceGroupPreparer(ctx context.
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/dedicatedhostgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/dedicatedhostgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -457,11 +441,7 @@ func (client DedicatedHostGroupsClient) ListBySubscriptionPreparer(ctx context.C
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/dedicatedhostgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/dedicatedhostgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -575,11 +555,7 @@ func (client DedicatedHostGroupsClient) UpdatePreparer(ctx context.Context, reso
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/dedicatedhostgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/dedicatedhostgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

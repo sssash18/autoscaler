@@ -77,11 +77,7 @@ func (client VirtualMachineExtensionImagesClient) GetPreparer(ctx context.Contex
 		"version":        autorest.Encode("path", version),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineextensionimages.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineextensionimages.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -156,11 +152,7 @@ func (client VirtualMachineExtensionImagesClient) ListTypesPreparer(ctx context.
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineextensionimages.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineextensionimages.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -237,11 +229,7 @@ func (client VirtualMachineExtensionImagesClient) ListVersionsPreparer(ctx conte
 		"type":           autorest.Encode("path", typeParameter),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineextensionimages.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineextensionimages.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

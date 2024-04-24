@@ -87,11 +87,7 @@ func (client VirtualMachineScaleSetVMExtensionsClient) CreateOrUpdatePreparer(ct
 		"vmScaleSetName":    autorest.Encode("path", VMScaleSetName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachinescalesetvmextensions.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachinescalesetvmextensions.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -178,11 +174,7 @@ func (client VirtualMachineScaleSetVMExtensionsClient) DeletePreparer(ctx contex
 		"vmScaleSetName":    autorest.Encode("path", VMScaleSetName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachinescalesetvmextensions.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachinescalesetvmextensions.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -272,11 +264,7 @@ func (client VirtualMachineScaleSetVMExtensionsClient) GetPreparer(ctx context.C
 		"vmScaleSetName":    autorest.Encode("path", VMScaleSetName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachinescalesetvmextensions.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachinescalesetvmextensions.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -358,11 +346,7 @@ func (client VirtualMachineScaleSetVMExtensionsClient) ListPreparer(ctx context.
 		"vmScaleSetName":    autorest.Encode("path", VMScaleSetName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachinescalesetvmextensions.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachinescalesetvmextensions.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -439,11 +423,7 @@ func (client VirtualMachineScaleSetVMExtensionsClient) UpdatePreparer(ctx contex
 		"vmScaleSetName":    autorest.Encode("path", VMScaleSetName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachinescalesetvmextensions.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachinescalesetvmextensions.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

@@ -66,11 +66,7 @@ func (client OperationsClient) List(ctx context.Context) (result OperationListRe
 
 // ListPreparer prepares the List request.
 func (client OperationsClient) ListPreparer(ctx context.Context) (*http.Request, error) {
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/operations.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/operations.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

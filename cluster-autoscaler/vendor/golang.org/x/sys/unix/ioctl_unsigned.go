@@ -2,12 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-<<<<<<<< HEAD:vertical-pod-autoscaler/vendor/golang.org/x/sys/unix/ioctl.go
-//go:build aix || darwin || dragonfly || freebsd || hurd || linux || netbsd || openbsd || solaris
-// +build aix darwin dragonfly freebsd hurd linux netbsd openbsd solaris
-========
 //go:build darwin || dragonfly || freebsd || hurd || linux || netbsd || openbsd
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/golang.org/x/sys/unix/ioctl_unsigned.go
 
 package unix
 

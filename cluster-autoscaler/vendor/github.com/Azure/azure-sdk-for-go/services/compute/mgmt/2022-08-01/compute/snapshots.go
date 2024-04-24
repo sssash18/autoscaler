@@ -91,11 +91,7 @@ func (client SnapshotsClient) CreateOrUpdatePreparer(ctx context.Context, resour
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/snapshots.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/snapshots.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -179,11 +175,7 @@ func (client SnapshotsClient) DeletePreparer(ctx context.Context, resourceGroupN
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/snapshots.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/snapshots.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -270,11 +262,7 @@ func (client SnapshotsClient) GetPreparer(ctx context.Context, resourceGroupName
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/snapshots.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/snapshots.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -352,11 +340,7 @@ func (client SnapshotsClient) GrantAccessPreparer(ctx context.Context, resourceG
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/snapshots.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/snapshots.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -444,11 +428,7 @@ func (client SnapshotsClient) ListPreparer(ctx context.Context) (*http.Request, 
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/snapshots.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/snapshots.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -564,11 +544,7 @@ func (client SnapshotsClient) ListByResourceGroupPreparer(ctx context.Context, r
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/snapshots.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/snapshots.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -676,11 +652,7 @@ func (client SnapshotsClient) RevokeAccessPreparer(ctx context.Context, resource
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/snapshots.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/snapshots.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -761,11 +733,7 @@ func (client SnapshotsClient) UpdatePreparer(ctx context.Context, resourceGroupN
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/snapshots.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/snapshots.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

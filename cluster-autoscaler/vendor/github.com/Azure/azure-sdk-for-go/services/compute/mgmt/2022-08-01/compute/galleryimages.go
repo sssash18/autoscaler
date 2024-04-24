@@ -86,11 +86,7 @@ func (client GalleryImagesClient) CreateOrUpdatePreparer(ctx context.Context, re
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/galleryimages.go
-	const APIVersion = "2021-10-01"
-========
 	const APIVersion = "2022-01-03"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/galleryimages.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -173,11 +169,7 @@ func (client GalleryImagesClient) DeletePreparer(ctx context.Context, resourceGr
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/galleryimages.go
-	const APIVersion = "2021-10-01"
-========
 	const APIVersion = "2022-01-03"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/galleryimages.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -264,11 +256,7 @@ func (client GalleryImagesClient) GetPreparer(ctx context.Context, resourceGroup
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/galleryimages.go
-	const APIVersion = "2021-10-01"
-========
 	const APIVersion = "2022-01-03"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/galleryimages.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -349,11 +337,7 @@ func (client GalleryImagesClient) ListByGalleryPreparer(ctx context.Context, res
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/galleryimages.go
-	const APIVersion = "2021-10-01"
-========
 	const APIVersion = "2022-01-03"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/galleryimages.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -464,11 +448,7 @@ func (client GalleryImagesClient) UpdatePreparer(ctx context.Context, resourceGr
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/galleryimages.go
-	const APIVersion = "2021-10-01"
-========
 	const APIVersion = "2022-01-03"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/galleryimages.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

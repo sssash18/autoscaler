@@ -15,11 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-<<<<<<<< HEAD:vertical-pod-autoscaler/e2e/vendor/go.opentelemetry.io/otel/exporters/otlp/otlptrace/internal/otlpconfig/optiontypes.go
-package otlpconfig // import "go.opentelemetry.io/otel/exporters/otlp/otlptrace/internal/otlpconfig"
-========
 package otlpconfig // import "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc/internal/otlpconfig"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc/internal/otlpconfig/optiontypes.go
 
 const (
 	// DefaultCollectorGRPCPort is the default gRPC port of the collector.

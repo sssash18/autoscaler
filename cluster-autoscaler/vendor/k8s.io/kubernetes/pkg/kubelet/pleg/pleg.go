@@ -76,5 +76,4 @@ type podLifecycleEventGeneratorHandler interface {
 	Stop()
 	Update(relistDuration *RelistDuration)
 	Relist()
-	UpdateCache(*kubecontainer.Pod, types.UID) (error, bool)
 }

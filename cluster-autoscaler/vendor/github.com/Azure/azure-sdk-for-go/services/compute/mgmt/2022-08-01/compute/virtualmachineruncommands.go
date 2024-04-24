@@ -73,11 +73,7 @@ func (client VirtualMachineRunCommandsClient) CreateOrUpdatePreparer(ctx context
 		"vmName":            autorest.Encode("path", VMName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineruncommands.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineruncommands.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -160,11 +156,7 @@ func (client VirtualMachineRunCommandsClient) DeletePreparer(ctx context.Context
 		"vmName":            autorest.Encode("path", VMName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineruncommands.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineruncommands.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -255,11 +247,7 @@ func (client VirtualMachineRunCommandsClient) GetPreparer(ctx context.Context, l
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineruncommands.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineruncommands.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -338,11 +326,7 @@ func (client VirtualMachineRunCommandsClient) GetByVirtualMachinePreparer(ctx co
 		"vmName":            autorest.Encode("path", VMName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineruncommands.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineruncommands.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -430,11 +414,7 @@ func (client VirtualMachineRunCommandsClient) ListPreparer(ctx context.Context, 
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineruncommands.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineruncommands.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -553,11 +533,7 @@ func (client VirtualMachineRunCommandsClient) ListByVirtualMachinePreparer(ctx c
 		"vmName":            autorest.Encode("path", VMName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineruncommands.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineruncommands.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -669,11 +645,7 @@ func (client VirtualMachineRunCommandsClient) UpdatePreparer(ctx context.Context
 		"vmName":            autorest.Encode("path", VMName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineruncommands.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineruncommands.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

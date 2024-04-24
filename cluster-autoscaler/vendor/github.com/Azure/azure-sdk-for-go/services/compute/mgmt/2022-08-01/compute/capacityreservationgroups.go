@@ -78,11 +78,7 @@ func (client CapacityReservationGroupsClient) CreateOrUpdatePreparer(ctx context
 		"subscriptionId":               autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/capacityreservationgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/capacityreservationgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -162,11 +158,7 @@ func (client CapacityReservationGroupsClient) DeletePreparer(ctx context.Context
 		"subscriptionId":               autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/capacityreservationgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/capacityreservationgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -245,11 +237,7 @@ func (client CapacityReservationGroupsClient) GetPreparer(ctx context.Context, r
 		"subscriptionId":               autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/capacityreservationgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/capacityreservationgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -335,11 +323,7 @@ func (client CapacityReservationGroupsClient) ListByResourceGroupPreparer(ctx co
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/capacityreservationgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/capacityreservationgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -460,11 +444,7 @@ func (client CapacityReservationGroupsClient) ListBySubscriptionPreparer(ctx con
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/capacityreservationgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/capacityreservationgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -582,11 +562,7 @@ func (client CapacityReservationGroupsClient) UpdatePreparer(ctx context.Context
 		"subscriptionId":               autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/capacityreservationgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/capacityreservationgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

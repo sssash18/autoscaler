@@ -59,7 +59,7 @@ func TestFindEmptyNodes(t *testing.T) {
 	clusterSnapshot := clustersnapshot.NewBasicClusterSnapshot()
 	clustersnapshot.InitializeClusterSnapshotOrDie(t, clusterSnapshot, []*apiv1.Node{nodes[0], nodes[1], nodes[2], nodes[3]}, []*apiv1.Pod{pod1, pod2})
 	testTime := time.Date(2020, time.December, 18, 17, 0, 0, 0, time.UTC)
-	r := NewRemovalSimulator(nil, clusterSnapshot, nil, nil, testDeleteOptions(), false)
+	r := NewRemovalSimulator(nil, clusterSnapshot, nil, nil, testDeleteOptions(), nil, false)
 	emptyNodes := r.FindEmptyNodesToRemove(nodeNames, testTime)
 	assert.Equal(t, []string{nodeNames[0], nodeNames[2], nodeNames[3]}, emptyNodes)
 }

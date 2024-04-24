@@ -75,11 +75,7 @@ func (client LogAnalyticsClient) ExportRequestRateByIntervalPreparer(ctx context
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/loganalytics.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/loganalytics.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -166,11 +162,7 @@ func (client LogAnalyticsClient) ExportThrottledRequestsPreparer(ctx context.Con
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/loganalytics.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/loganalytics.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

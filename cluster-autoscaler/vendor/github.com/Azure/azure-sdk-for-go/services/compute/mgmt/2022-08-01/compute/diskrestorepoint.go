@@ -81,11 +81,7 @@ func (client DiskRestorePointClient) GetPreparer(ctx context.Context, resourceGr
 		"vmRestorePointName":         autorest.Encode("path", VMRestorePointName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskrestorepoint.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskrestorepoint.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -165,11 +161,7 @@ func (client DiskRestorePointClient) GrantAccessPreparer(ctx context.Context, re
 		"vmRestorePointName":         autorest.Encode("path", VMRestorePointName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskrestorepoint.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskrestorepoint.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -264,11 +256,7 @@ func (client DiskRestorePointClient) ListByRestorePointPreparer(ctx context.Cont
 		"vmRestorePointName":         autorest.Encode("path", VMRestorePointName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskrestorepoint.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskrestorepoint.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -378,11 +366,7 @@ func (client DiskRestorePointClient) RevokeAccessPreparer(ctx context.Context, r
 		"vmRestorePointName":         autorest.Encode("path", VMRestorePointName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskrestorepoint.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskrestorepoint.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"go.opentelemetry.io/otel/attribute"
-	"google.golang.org/grpc/metadata"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -398,18 +397,10 @@ func NewCacherFromConfig(config Config) (*Cacher, error) {
 		// so that future reuse does not get a spurious timeout.
 		<-cacher.timer.C
 	}
-	var contextMetadata metadata.MD
-	if utilfeature.DefaultFeatureGate.Enabled(features.SeparateCacheWatchRPC) {
-		// Add grpc context metadata to watch and progress notify requests done by cacher to:
-		// * Prevent starvation of watch opened by cacher, by moving it to separate Watch RPC than watch request that bypass cacher.
-		// * Ensure that progress notification requests are executed on the same Watch RPC as their watch, which is required for it to work.
-		contextMetadata = metadata.New(map[string]string{"source": "cache"})
-	}
-
-	progressRequester := newConditionalProgressRequester(config.Storage.RequestWatchProgress, config.Clock, contextMetadata)
+	progressRequester := newConditionalProgressRequester(config.Storage.RequestWatchProgress, config.Clock)
 	watchCache := newWatchCache(
 		config.KeyFunc, cacher.processEvent, config.GetAttrsFunc, config.Versioner, config.Indexers, config.Clock, config.GroupResource, progressRequester)
-	listerWatcher := NewListerWatcher(config.Storage, config.ResourcePrefix, config.NewListFunc, contextMetadata)
+	listerWatcher := NewListerWatcher(config.Storage, config.ResourcePrefix, config.NewListFunc)
 	reflectorName := "storage/cacher.go:" + config.ResourcePrefix
 
 	reflector := cache.NewNamedReflector(reflectorName, listerWatcher, obj, watchCache, 0)

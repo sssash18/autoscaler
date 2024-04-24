@@ -70,11 +70,7 @@ func (client VirtualMachineScaleSetRollingUpgradesClient) CancelPreparer(ctx con
 		"vmScaleSetName":    autorest.Encode("path", VMScaleSetName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachinescalesetrollingupgrades.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachinescalesetrollingupgrades.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -159,11 +155,7 @@ func (client VirtualMachineScaleSetRollingUpgradesClient) GetLatestPreparer(ctx 
 		"vmScaleSetName":    autorest.Encode("path", VMScaleSetName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachinescalesetrollingupgrades.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachinescalesetrollingupgrades.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -234,11 +226,7 @@ func (client VirtualMachineScaleSetRollingUpgradesClient) StartExtensionUpgradeP
 		"vmScaleSetName":    autorest.Encode("path", VMScaleSetName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachinescalesetrollingupgrades.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachinescalesetrollingupgrades.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -317,11 +305,7 @@ func (client VirtualMachineScaleSetRollingUpgradesClient) StartOSUpgradePreparer
 		"vmScaleSetName":    autorest.Encode("path", VMScaleSetName),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachinescalesetrollingupgrades.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachinescalesetrollingupgrades.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

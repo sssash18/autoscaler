@@ -84,11 +84,7 @@ func (client VirtualMachineImagesEdgeZoneClient) GetPreparer(ctx context.Context
 		"version":        autorest.Encode("path", version),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineimagesedgezone.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineimagesedgezone.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -174,11 +170,7 @@ func (client VirtualMachineImagesEdgeZoneClient) ListPreparer(ctx context.Contex
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineimagesedgezone.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineimagesedgezone.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -265,11 +257,7 @@ func (client VirtualMachineImagesEdgeZoneClient) ListOffersPreparer(ctx context.
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineimagesedgezone.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineimagesedgezone.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -345,11 +333,7 @@ func (client VirtualMachineImagesEdgeZoneClient) ListPublishersPreparer(ctx cont
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineimagesedgezone.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineimagesedgezone.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -429,11 +413,7 @@ func (client VirtualMachineImagesEdgeZoneClient) ListSkusPreparer(ctx context.Co
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/virtualmachineimagesedgezone.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/virtualmachineimagesedgezone.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

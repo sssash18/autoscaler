@@ -464,67 +464,6 @@ func getInstanceState(currentAction string) cloudprovider.InstanceState {
 	}
 }
 
-// GetErrorInfo maps the error code, error message and instance status to CA instance error info
-func GetErrorInfo(errorCode, errorMessage, instanceStatus string, previousErrorInfo *cloudprovider.InstanceErrorInfo) *cloudprovider.InstanceErrorInfo {
-	if isResourcePoolExhaustedErrorCode(errorCode) {
-		return &cloudprovider.InstanceErrorInfo{
-			ErrorClass: cloudprovider.OutOfResourcesErrorClass,
-			ErrorCode:  ErrorCodeResourcePoolExhausted,
-		}
-	} else if isQuotaExceededErrorCode(errorCode) {
-		return &cloudprovider.InstanceErrorInfo{
-			ErrorClass: cloudprovider.OutOfResourcesErrorClass,
-			ErrorCode:  ErrorCodeQuotaExceeded,
-		}
-	} else if isIPSpaceExhaustedErrorCode(errorCode) {
-		return &cloudprovider.InstanceErrorInfo{
-			ErrorClass: cloudprovider.OtherErrorClass,
-			ErrorCode:  ErrorIPSpaceExhausted,
-		}
-	} else if isPermissionsError(errorCode) {
-		return &cloudprovider.InstanceErrorInfo{
-			ErrorClass: cloudprovider.OtherErrorClass,
-			ErrorCode:  ErrorCodePermissions,
-		}
-	} else if isVmExternalIpAccessPolicyConstraintError(errorCode, errorMessage) {
-		return &cloudprovider.InstanceErrorInfo{
-			ErrorClass: cloudprovider.OtherErrorClass,
-			ErrorCode:  ErrorCodeVmExternalIpAccessPolicyConstraint,
-		}
-	} else if isReservationNotReady(errorCode, errorMessage) {
-		return &cloudprovider.InstanceErrorInfo{
-			ErrorClass: cloudprovider.OtherErrorClass,
-			ErrorCode:  ErrorReservationNotReady,
-		}
-	} else if isInvalidReservationError(errorCode, errorMessage) {
-		return &cloudprovider.InstanceErrorInfo{
-			ErrorClass: cloudprovider.OtherErrorClass,
-			ErrorCode:  ErrorInvalidReservation,
-		}
-	} else if isInstanceStatusNotRunningYet(instanceStatus) {
-		if previousErrorInfo != nil {
-			// keep the current error
-			return previousErrorInfo
-		}
-		return &cloudprovider.InstanceErrorInfo{
-			ErrorClass: cloudprovider.OtherErrorClass,
-			ErrorCode:  ErrorCodeOther,
-		}
-	}
-	return nil
-}
-
-func getInstanceState(currentAction string) cloudprovider.InstanceState {
-	switch currentAction {
-	case "CREATING", "RECREATING", "CREATING_WITHOUT_RETRIES":
-		return cloudprovider.InstanceCreating
-	case "ABANDONING", "DELETING":
-		return cloudprovider.InstanceDeleting
-	default:
-		return cloudprovider.InstanceRunning
-	}
-}
-
 func getLastAttemptErrors(instance *gce.ManagedInstance) []*gce.ManagedInstanceLastAttemptErrorsErrors {
 	if instance.LastAttempt != nil && instance.LastAttempt.Errors != nil {
 		return instance.LastAttempt.Errors.Errors

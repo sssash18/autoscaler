@@ -43,9 +43,6 @@ func (az *Cloud) CreateFileShare(ctx context.Context, accountOptions *AccountOpt
 	if accountOptions.SubscriptionID == "" {
 		accountOptions.SubscriptionID = az.SubscriptionID
 	}
-	if accountOptions.SubscriptionID == "" {
-		accountOptions.SubscriptionID = az.subscriptionID
-	}
 
 	accountOptions.EnableHTTPSTrafficOnly = true
 	if shareOptions.Protocol == storage.EnabledProtocolsNFS {

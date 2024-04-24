@@ -77,11 +77,7 @@ func (client ProximityPlacementGroupsClient) CreateOrUpdatePreparer(ctx context.
 		"subscriptionId":              autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/proximityplacementgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/proximityplacementgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -159,11 +155,7 @@ func (client ProximityPlacementGroupsClient) DeletePreparer(ctx context.Context,
 		"subscriptionId":              autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/proximityplacementgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/proximityplacementgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -240,11 +232,7 @@ func (client ProximityPlacementGroupsClient) GetPreparer(ctx context.Context, re
 		"subscriptionId":              autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/proximityplacementgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/proximityplacementgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -326,11 +314,7 @@ func (client ProximityPlacementGroupsClient) ListByResourceGroupPreparer(ctx con
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/proximityplacementgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/proximityplacementgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -443,11 +427,7 @@ func (client ProximityPlacementGroupsClient) ListBySubscriptionPreparer(ctx cont
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/proximityplacementgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/proximityplacementgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -561,11 +541,7 @@ func (client ProximityPlacementGroupsClient) UpdatePreparer(ctx context.Context,
 		"subscriptionId":              autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/proximityplacementgroups.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/proximityplacementgroups.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

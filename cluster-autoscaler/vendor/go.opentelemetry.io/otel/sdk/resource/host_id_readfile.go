@@ -12,19 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-<<<<<<<< HEAD:vertical-pod-autoscaler/e2e/vendor/go.opentelemetry.io/otel/internal_logging.go
-package otel // import "go.opentelemetry.io/otel"
-
-import (
-	"github.com/go-logr/logr"
-
-	"go.opentelemetry.io/otel/internal/global"
-)
-
-// SetLogger configures the logger used internally to opentelemetry.
-func SetLogger(logger logr.Logger) {
-	global.SetLogger(logger)
-========
 //go:build linux || dragonfly || freebsd || netbsd || openbsd || solaris
 
 package resource // import "go.opentelemetry.io/otel/sdk/resource"
@@ -38,5 +25,4 @@ func readFile(filename string) (string, error) {
 	}
 
 	return string(b), nil
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/go.opentelemetry.io/otel/sdk/resource/host_id_readfile.go
 }

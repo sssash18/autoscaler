@@ -83,11 +83,7 @@ func (client DiskEncryptionSetsClient) CreateOrUpdatePreparer(ctx context.Contex
 		"subscriptionId":        autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskencryptionsets.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskencryptionsets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -170,11 +166,7 @@ func (client DiskEncryptionSetsClient) DeletePreparer(ctx context.Context, resou
 		"subscriptionId":        autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskencryptionsets.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskencryptionsets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -261,11 +253,7 @@ func (client DiskEncryptionSetsClient) GetPreparer(ctx context.Context, resource
 		"subscriptionId":        autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskencryptionsets.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskencryptionsets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -341,11 +329,7 @@ func (client DiskEncryptionSetsClient) ListPreparer(ctx context.Context) (*http.
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskencryptionsets.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskencryptionsets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -465,11 +449,7 @@ func (client DiskEncryptionSetsClient) ListAssociatedResourcesPreparer(ctx conte
 		"subscriptionId":        autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskencryptionsets.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskencryptionsets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -585,11 +565,7 @@ func (client DiskEncryptionSetsClient) ListByResourceGroupPreparer(ctx context.C
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskencryptionsets.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskencryptionsets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -699,11 +675,7 @@ func (client DiskEncryptionSetsClient) UpdatePreparer(ctx context.Context, resou
 		"subscriptionId":        autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/diskencryptionsets.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/diskencryptionsets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

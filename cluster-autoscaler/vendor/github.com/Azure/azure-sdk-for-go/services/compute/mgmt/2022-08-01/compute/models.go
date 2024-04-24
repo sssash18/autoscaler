@@ -19,11 +19,7 @@ import (
 )
 
 // The package's fully qualified name.
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-const fqdn = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute"
-========
 const fqdn = "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 
 // AccessURI a disk access SAS uri.
 type AccessURI struct {
@@ -1266,11 +1262,7 @@ type CapacityReservationProperties struct {
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// InstanceView - READ-ONLY; The Capacity reservation instance view.
 	InstanceView *CapacityReservationInstanceView `json:"instanceView,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// TimeCreated - READ-ONLY; Specifies the time at which the Capacity Reservation resource was created.<br><br>Minimum api-version: 2022-03-01.
-========
 	// TimeCreated - READ-ONLY; Specifies the time at which the Capacity Reservation resource was created.<br><br>Minimum api-version: 2021-11-01.
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	TimeCreated *date.Time `json:"timeCreated,omitempty"`
 }
 
@@ -3289,40 +3281,6 @@ type CopyCompletionError struct {
 	ErrorMessage *string `json:"errorMessage,omitempty"`
 }
 
-// CommunityGalleryInfo information of community gallery if current gallery is shared to community
-type CommunityGalleryInfo struct {
-	// PublisherURI - Community gallery publisher uri
-	PublisherURI *string `json:"publisherUri,omitempty"`
-	// PublisherContact - Community gallery publisher contact email
-	PublisherContact *string `json:"publisherContact,omitempty"`
-	// Eula - Community gallery publisher eula
-	Eula *string `json:"eula,omitempty"`
-	// PublicNamePrefix - Community gallery public name prefix
-	PublicNamePrefix *string `json:"publicNamePrefix,omitempty"`
-	// CommunityGalleryEnabled - READ-ONLY; Contains info about whether community gallery sharing is enabled.
-	CommunityGalleryEnabled *bool `json:"communityGalleryEnabled,omitempty"`
-	// PublicNames - READ-ONLY; Community gallery public name list.
-	PublicNames *[]string `json:"publicNames,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for CommunityGalleryInfo.
-func (cgiVar CommunityGalleryInfo) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if cgiVar.PublisherURI != nil {
-		objectMap["publisherUri"] = cgiVar.PublisherURI
-	}
-	if cgiVar.PublisherContact != nil {
-		objectMap["publisherContact"] = cgiVar.PublisherContact
-	}
-	if cgiVar.Eula != nil {
-		objectMap["eula"] = cgiVar.Eula
-	}
-	if cgiVar.PublicNamePrefix != nil {
-		objectMap["publicNamePrefix"] = cgiVar.PublicNamePrefix
-	}
-	return json.Marshal(objectMap)
-}
-
 // CreationData data used when creating a disk.
 type CreationData struct {
 	// CreateOption - This enumerates the possible sources of a disk's creation. Possible values include: 'Empty', 'Attach', 'FromImage', 'Import', 'Copy', 'Restore', 'Upload', 'CopyStart', 'ImportSecure', 'UploadPreparedSecure'
@@ -3345,11 +3303,8 @@ type CreationData struct {
 	LogicalSectorSize *int32 `json:"logicalSectorSize,omitempty"`
 	// SecurityDataURI - If createOption is ImportSecure, this is the URI of a blob to be imported into VM guest state.
 	SecurityDataURI *string `json:"securityDataUri,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-========
 	// PerformancePlus - Set this flag to true to get a boost on the performance target of the disk deployed, see here on the respective performance target. This flag can only be set on disk creation time and cannot be disabled after enabled.
 	PerformancePlus *bool `json:"performancePlus,omitempty"`
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 }
 
 // MarshalJSON is the custom marshaler for CreationData.
@@ -3382,12 +3337,9 @@ func (cd CreationData) MarshalJSON() ([]byte, error) {
 	if cd.SecurityDataURI != nil {
 		objectMap["securityDataUri"] = cd.SecurityDataURI
 	}
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-========
 	if cd.PerformancePlus != nil {
 		objectMap["performancePlus"] = cd.PerformancePlus
 	}
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	return json.Marshal(objectMap)
 }
 
@@ -4222,11 +4174,7 @@ type DedicatedHostProperties struct {
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// InstanceView - READ-ONLY; The dedicated host instance view.
 	InstanceView *DedicatedHostInstanceView `json:"instanceView,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// TimeCreated - READ-ONLY; Specifies the time at which the Dedicated Host resource was created.<br><br>Minimum api-version: 2022-03-01.
-========
 	// TimeCreated - READ-ONLY; Specifies the time at which the Dedicated Host resource was created.<br><br>Minimum api-version: 2021-11-01.
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	TimeCreated *date.Time `json:"timeCreated,omitempty"`
 }
 
@@ -5882,11 +5830,8 @@ type DiskProperties struct {
 	PublicNetworkAccess PublicNetworkAccess `json:"publicNetworkAccess,omitempty"`
 	// DataAccessAuthMode - Possible values include: 'DataAccessAuthModeAzureActiveDirectory', 'DataAccessAuthModeNone'
 	DataAccessAuthMode DataAccessAuthMode `json:"dataAccessAuthMode,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-========
 	// OptimizedForFrequentAttach - Setting this property to true improves reliability and performance of data disks that are frequently (more than 5 times a day) by detached from one virtual machine and attached to another. This property should not be set for disks that are not detached and attached frequently as it causes the disks to not align with the fault domain of the virtual machine.
 	OptimizedForFrequentAttach *bool `json:"optimizedForFrequentAttach,omitempty"`
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 }
 
 // MarshalJSON is the custom marshaler for DiskProperties.
@@ -5961,12 +5906,9 @@ func (dp DiskProperties) MarshalJSON() ([]byte, error) {
 	if dp.DataAccessAuthMode != "" {
 		objectMap["dataAccessAuthMode"] = dp.DataAccessAuthMode
 	}
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-========
 	if dp.OptimizedForFrequentAttach != nil {
 		objectMap["optimizedForFrequentAttach"] = dp.OptimizedForFrequentAttach
 	}
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	return json.Marshal(objectMap)
 }
 
@@ -6286,11 +6228,8 @@ type DiskRestorePointProperties struct {
 	ReplicationState *string `json:"replicationState,omitempty"`
 	// SourceResourceLocation - READ-ONLY; Location of source disk or source disk restore point when source resource is from a different region.
 	SourceResourceLocation *string `json:"sourceResourceLocation,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-========
 	// SecurityProfile - Contains the security related information for the resource.
 	SecurityProfile *DiskSecurityProfile `json:"securityProfile,omitempty"`
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 }
 
 // MarshalJSON is the custom marshaler for DiskRestorePointProperties.
@@ -6504,11 +6443,7 @@ func (future *DisksGrantAccessFuture) result(client DisksClient) (au AccessURI, 
 // DiskSku the disks sku name. Can be Standard_LRS, Premium_LRS, StandardSSD_LRS, UltraSSD_LRS,
 // Premium_ZRS, StandardSSD_ZRS, or PremiumV2_LRS.
 type DiskSku struct {
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// Name - The sku name. Possible values include: 'StandardLRS', 'PremiumLRS', 'StandardSSDLRS', 'UltraSSDLRS', 'PremiumZRS', 'StandardSSDZRS'
-========
 	// Name - The sku name. Possible values include: 'StandardLRS', 'PremiumLRS', 'StandardSSDLRS', 'UltraSSDLRS', 'PremiumZRS', 'StandardSSDZRS', 'PremiumV2LRS'
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	Name DiskStorageAccountTypes `json:"name,omitempty"`
 	// Tier - READ-ONLY; The sku tier.
 	Tier *string `json:"tier,omitempty"`
@@ -6707,11 +6642,8 @@ type DiskUpdateProperties struct {
 	PublicNetworkAccess PublicNetworkAccess `json:"publicNetworkAccess,omitempty"`
 	// DataAccessAuthMode - Possible values include: 'DataAccessAuthModeAzureActiveDirectory', 'DataAccessAuthModeNone'
 	DataAccessAuthMode DataAccessAuthMode `json:"dataAccessAuthMode,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-========
 	// OptimizedForFrequentAttach - Setting this property to true improves reliability and performance of data disks that are frequently (more than 5 times a day) by detached from one virtual machine and attached to another. This property should not be set for disks that are not detached and attached frequently as it causes the disks to not align with the fault domain of the virtual machine.
 	OptimizedForFrequentAttach *bool `json:"optimizedForFrequentAttach,omitempty"`
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 }
 
 // MarshalJSON is the custom marshaler for DiskUpdateProperties.
@@ -6771,12 +6703,9 @@ func (dup DiskUpdateProperties) MarshalJSON() ([]byte, error) {
 	if dup.DataAccessAuthMode != "" {
 		objectMap["dataAccessAuthMode"] = dup.DataAccessAuthMode
 	}
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-========
 	if dup.OptimizedForFrequentAttach != nil {
 		objectMap["optimizedForFrequentAttach"] = dup.OptimizedForFrequentAttach
 	}
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	return json.Marshal(objectMap)
 }
 
@@ -8586,11 +8515,7 @@ type GalleryImageProperties struct {
 	ProvisioningState GalleryProvisioningState `json:"provisioningState,omitempty"`
 	// Features - A list of gallery image features.
 	Features *[]GalleryImageFeature `json:"features,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// Architecture - The architecture of the image. Applicable to OS disks only. Possible values include: 'X64', 'Arm64'
-========
 	// Architecture - Possible values include: 'X64', 'Arm64'
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	Architecture Architecture `json:"architecture,omitempty"`
 }
 
@@ -9580,17 +9505,10 @@ type GalleryProperties struct {
 	// Description - The description of this Shared Image Gallery resource. This property is updatable.
 	Description *string            `json:"description,omitempty"`
 	Identifier  *GalleryIdentifier `json:"identifier,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response. Possible values include: 'ProvisioningStateCreating', 'ProvisioningStateUpdating', 'ProvisioningStateFailed', 'ProvisioningStateSucceeded', 'ProvisioningStateDeleting', 'ProvisioningStateMigrating'
-	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
-	SharingProfile    *SharingProfile   `json:"sharingProfile,omitempty"`
-	SoftDeletePolicy  *SoftDeletePolicy `json:"softDeletePolicy,omitempty"`
-========
 	// ProvisioningState - READ-ONLY; Possible values include: 'GalleryProvisioningStateCreating', 'GalleryProvisioningStateUpdating', 'GalleryProvisioningStateFailed', 'GalleryProvisioningStateSucceeded', 'GalleryProvisioningStateDeleting', 'GalleryProvisioningStateMigrating'
 	ProvisioningState GalleryProvisioningState `json:"provisioningState,omitempty"`
 	SharingProfile    *SharingProfile          `json:"sharingProfile,omitempty"`
 	SoftDeletePolicy  *SoftDeletePolicy        `json:"softDeletePolicy,omitempty"`
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	// SharingStatus - READ-ONLY
 	SharingStatus *SharingStatus `json:"sharingStatus,omitempty"`
 }
@@ -15358,11 +15276,7 @@ func (sie ShareInfoElement) MarshalJSON() ([]byte, error) {
 
 // SharingProfile profile for gallery sharing to subscription or tenant
 type SharingProfile struct {
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// Permissions - This property allows you to specify the permission of sharing gallery. <br><br> Possible values are: <br><br> **Private** <br><br> **Groups**. Possible values include: 'Private', 'Groups'
-========
 	// Permissions - This property allows you to specify the permission of sharing gallery. <br><br> Possible values are: <br><br> **Private** <br><br> **Groups** <br><br> **Community**. Possible values include: 'Private', 'Groups', 'Community'
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	Permissions GallerySharingPermissionTypes `json:"permissions,omitempty"`
 	// Groups - READ-ONLY; A list of sharing profile groups.
 	Groups *[]SharingProfileGroup `json:"groups,omitempty"`
@@ -15384,11 +15298,7 @@ func (sp SharingProfile) MarshalJSON() ([]byte, error) {
 
 // SharingProfileGroup group of the gallery sharing profile
 type SharingProfileGroup struct {
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// Type - This property allows you to specify the type of sharing group. <br><br> Possible values are: <br><br> **Subscriptions** <br><br> **AADTenants** <br><br> **Community**. Possible values include: 'Subscriptions', 'AADTenants', 'Community'
-========
 	// Type - This property allows you to specify the type of sharing group. <br><br> Possible values are: <br><br> **Subscriptions** <br><br> **AADTenants**. Possible values include: 'Subscriptions', 'AADTenants'
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	Type SharingProfileGroupTypes `json:"type,omitempty"`
 	// Ids - A list of subscription/tenant ids the gallery is aimed to be shared to.
 	Ids *[]string `json:"ids,omitempty"`
@@ -15764,11 +15674,8 @@ type SnapshotProperties struct {
 	PublicNetworkAccess PublicNetworkAccess `json:"publicNetworkAccess,omitempty"`
 	// CompletionPercent - Percentage complete for the background copy when a resource is created via the CopyStart operation.
 	CompletionPercent *float64 `json:"completionPercent,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-========
 	// CopyCompletionError - Indicates the error details if the background copy of a resource created via the CopyStart operation fails.
 	CopyCompletionError *CopyCompletionError `json:"copyCompletionError,omitempty"`
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	// DataAccessAuthMode - Possible values include: 'DataAccessAuthModeAzureActiveDirectory', 'DataAccessAuthModeNone'
 	DataAccessAuthMode DataAccessAuthMode `json:"dataAccessAuthMode,omitempty"`
 }
@@ -15824,12 +15731,9 @@ func (sp SnapshotProperties) MarshalJSON() ([]byte, error) {
 	if sp.CompletionPercent != nil {
 		objectMap["completionPercent"] = sp.CompletionPercent
 	}
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-========
 	if sp.CopyCompletionError != nil {
 		objectMap["copyCompletionError"] = sp.CopyCompletionError
 	}
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	if sp.DataAccessAuthMode != "" {
 		objectMap["dataAccessAuthMode"] = sp.DataAccessAuthMode
 	}
@@ -16576,8 +16480,6 @@ type SupportedCapabilities struct {
 	AcceleratedNetwork *bool `json:"acceleratedNetwork,omitempty"`
 	// Architecture - CPU architecture supported by an OS disk. Possible values include: 'X64', 'Arm64'
 	Architecture Architecture `json:"architecture,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-========
 }
 
 // SystemData the system meta data relating to this resource.
@@ -16592,7 +16494,6 @@ type SystemData struct {
 func (sd SystemData) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]interface{})
 	return json.Marshal(objectMap)
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 }
 
 // TargetRegion describes the target region information.
@@ -17503,11 +17404,7 @@ type VirtualMachineExtensionProperties struct {
 	// SuppressFailures - Indicates whether failures stemming from the extension will be suppressed (Operational failures such as not connecting to the VM will not be suppressed regardless of this value). The default is false.
 	SuppressFailures *bool `json:"suppressFailures,omitempty"`
 	// ProtectedSettingsFromKeyVault - The extensions protected settings that are passed by reference, and consumed from key vault
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	ProtectedSettingsFromKeyVault interface{} `json:"protectedSettingsFromKeyVault,omitempty"`
-========
 	ProtectedSettingsFromKeyVault *KeyVaultSecretReference `json:"protectedSettingsFromKeyVault,omitempty"`
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 }
 
 // MarshalJSON is the custom marshaler for VirtualMachineExtensionProperties.
@@ -17752,11 +17649,7 @@ type VirtualMachineExtensionUpdateProperties struct {
 	// SuppressFailures - Indicates whether failures stemming from the extension will be suppressed (Operational failures such as not connecting to the VM will not be suppressed regardless of this value). The default is false.
 	SuppressFailures *bool `json:"suppressFailures,omitempty"`
 	// ProtectedSettingsFromKeyVault - The extensions protected settings that are passed by reference, and consumed from key vault
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	ProtectedSettingsFromKeyVault interface{} `json:"protectedSettingsFromKeyVault,omitempty"`
-========
 	ProtectedSettingsFromKeyVault *KeyVaultSecretReference `json:"protectedSettingsFromKeyVault,omitempty"`
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 }
 
 // VirtualMachineHealthStatus the health status of the VM.
@@ -18491,11 +18384,7 @@ type VirtualMachineProperties struct {
 	CapacityReservation *CapacityReservationProfile `json:"capacityReservation,omitempty"`
 	// ApplicationProfile - Specifies the gallery applications that should be made available to the VM/VMSS
 	ApplicationProfile *ApplicationProfile `json:"applicationProfile,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// TimeCreated - READ-ONLY; Specifies the time at which the Virtual Machine resource was created.<br><br>Minimum api-version: 2022-03-01.
-========
 	// TimeCreated - READ-ONLY; Specifies the time at which the Virtual Machine resource was created.<br><br>Minimum api-version: 2021-11-01.
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	TimeCreated *date.Time `json:"timeCreated,omitempty"`
 }
 
@@ -19700,11 +19589,7 @@ type VirtualMachineScaleSetExtensionProperties struct {
 	// SuppressFailures - Indicates whether failures stemming from the extension will be suppressed (Operational failures such as not connecting to the VM will not be suppressed regardless of this value). The default is false.
 	SuppressFailures *bool `json:"suppressFailures,omitempty"`
 	// ProtectedSettingsFromKeyVault - The extensions protected settings that are passed by reference, and consumed from key vault
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	ProtectedSettingsFromKeyVault interface{} `json:"protectedSettingsFromKeyVault,omitempty"`
-========
 	ProtectedSettingsFromKeyVault *KeyVaultSecretReference `json:"protectedSettingsFromKeyVault,omitempty"`
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 }
 
 // MarshalJSON is the custom marshaler for VirtualMachineScaleSetExtensionProperties.
@@ -19942,11 +19827,7 @@ func (vmsseu *VirtualMachineScaleSetExtensionUpdate) UnmarshalJSON(body []byte) 
 
 // VirtualMachineScaleSetHardwareProfile specifies the hardware settings for the virtual machine scale set.
 type VirtualMachineScaleSetHardwareProfile struct {
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// VMSizeProperties - Specifies the properties for customizing the size of the virtual machine. Minimum api-version: 2022-03-01. <br><br> Please follow the instructions in [VM Customization](https://aka.ms/vmcustomization) for more details.
-========
 	// VMSizeProperties - Specifies the properties for customizing the size of the virtual machine. Minimum api-version: 2021-11-01. <br><br> Please follow the instructions in [VM Customization](https://aka.ms/vmcustomization) for more details.
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	VMSizeProperties *VMSizeProperties `json:"vmSizeProperties,omitempty"`
 }
 
@@ -20944,13 +20825,9 @@ type VirtualMachineScaleSetProperties struct {
 	OrchestrationMode OrchestrationMode `json:"orchestrationMode,omitempty"`
 	// SpotRestorePolicy - Specifies the Spot Restore properties for the virtual machine scale set.
 	SpotRestorePolicy *SpotRestorePolicy `json:"spotRestorePolicy,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// TimeCreated - READ-ONLY; Specifies the time at which the Virtual Machine Scale Set resource was created.<br><br>Minimum api-version: 2022-03-01.
-========
 	// PriorityMixPolicy - Specifies the desired targets for mixing Spot and Regular priority VMs within the same VMSS Flex instance.
 	PriorityMixPolicy *PriorityMixPolicy `json:"priorityMixPolicy,omitempty"`
 	// TimeCreated - READ-ONLY; Specifies the time at which the Virtual Machine Scale Set resource was created.<br><br>Minimum api-version: 2021-11-01.
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	TimeCreated *date.Time `json:"timeCreated,omitempty"`
 }
 
@@ -22965,11 +22842,7 @@ type VirtualMachineScaleSetVMProfile struct {
 	CapacityReservation *CapacityReservationProfile `json:"capacityReservation,omitempty"`
 	// ApplicationProfile - Specifies the gallery applications that should be made available to the VM/VMSS
 	ApplicationProfile *ApplicationProfile `json:"applicationProfile,omitempty"`
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/models.go
-	// HardwareProfile - Specifies the hardware profile related details of a scale set. <br><br>Minimum api-version: 2022-03-01.
-========
 	// HardwareProfile - Specifies the hardware profile related details of a scale set. <br><br>Minimum api-version: 2021-11-01.
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/models.go
 	HardwareProfile *VirtualMachineScaleSetHardwareProfile `json:"hardwareProfile,omitempty"`
 }
 

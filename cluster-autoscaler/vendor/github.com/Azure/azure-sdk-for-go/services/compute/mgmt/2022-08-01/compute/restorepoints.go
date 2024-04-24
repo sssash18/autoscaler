@@ -95,11 +95,7 @@ func (client RestorePointsClient) CreatePreparer(ctx context.Context, resourceGr
 		"subscriptionId":             autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/restorepoints.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/restorepoints.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -182,11 +178,7 @@ func (client RestorePointsClient) DeletePreparer(ctx context.Context, resourceGr
 		"subscriptionId":             autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/restorepoints.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/restorepoints.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -275,11 +267,7 @@ func (client RestorePointsClient) GetPreparer(ctx context.Context, resourceGroup
 		"subscriptionId":             autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/restorepoints.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/restorepoints.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

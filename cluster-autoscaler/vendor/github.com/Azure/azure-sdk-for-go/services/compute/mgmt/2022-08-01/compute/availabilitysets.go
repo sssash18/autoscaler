@@ -77,11 +77,7 @@ func (client AvailabilitySetsClient) CreateOrUpdatePreparer(ctx context.Context,
 		"subscriptionId":      autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/availabilitysets.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/availabilitysets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -159,11 +155,7 @@ func (client AvailabilitySetsClient) DeletePreparer(ctx context.Context, resourc
 		"subscriptionId":      autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/availabilitysets.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/availabilitysets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -238,11 +230,7 @@ func (client AvailabilitySetsClient) GetPreparer(ctx context.Context, resourceGr
 		"subscriptionId":      autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/availabilitysets.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/availabilitysets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -321,11 +309,7 @@ func (client AvailabilitySetsClient) ListPreparer(ctx context.Context, resourceG
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/availabilitysets.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/availabilitysets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -439,11 +423,7 @@ func (client AvailabilitySetsClient) ListAvailableSizesPreparer(ctx context.Cont
 		"subscriptionId":      autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/availabilitysets.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/availabilitysets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -521,11 +501,7 @@ func (client AvailabilitySetsClient) ListBySubscriptionPreparer(ctx context.Cont
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/availabilitysets.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/availabilitysets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -642,11 +618,7 @@ func (client AvailabilitySetsClient) UpdatePreparer(ctx context.Context, resourc
 		"subscriptionId":      autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/availabilitysets.go
-	const APIVersion = "2022-03-01"
-========
 	const APIVersion = "2022-08-01"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/availabilitysets.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}

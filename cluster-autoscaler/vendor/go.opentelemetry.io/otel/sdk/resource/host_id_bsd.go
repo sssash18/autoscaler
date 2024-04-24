@@ -12,14 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-<<<<<<<< HEAD:vertical-pod-autoscaler/e2e/vendor/go.opentelemetry.io/otel/semconv/v1.12.0/exception.go
-package semconv // import "go.opentelemetry.io/otel/semconv/v1.12.0"
-
-const (
-	// ExceptionEventName is the name of the Span event representing an exception.
-	ExceptionEventName = "exception"
-)
-========
 //go:build dragonfly || freebsd || netbsd || openbsd || solaris
 // +build dragonfly freebsd netbsd openbsd solaris
 
@@ -29,4 +21,3 @@ var platformHostIDReader hostIDReader = &hostIDReaderBSD{
 	execCommand: execCommand,
 	readFile:    readFile,
 }
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/go.opentelemetry.io/otel/sdk/resource/host_id_bsd.go

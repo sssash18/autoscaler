@@ -87,11 +87,7 @@ func (client DisksClient) CreateOrUpdatePreparer(ctx context.Context, resourceGr
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/disks.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/disks.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -176,11 +172,7 @@ func (client DisksClient) DeletePreparer(ctx context.Context, resourceGroupName 
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/disks.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/disks.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -267,11 +259,7 @@ func (client DisksClient) GetPreparer(ctx context.Context, resourceGroupName str
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/disks.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/disks.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -349,11 +337,7 @@ func (client DisksClient) GrantAccessPreparer(ctx context.Context, resourceGroup
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/disks.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/disks.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -441,11 +425,7 @@ func (client DisksClient) ListPreparer(ctx context.Context) (*http.Request, erro
 		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/disks.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/disks.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -561,11 +541,7 @@ func (client DisksClient) ListByResourceGroupPreparer(ctx context.Context, resou
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/disks.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/disks.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -673,11 +649,7 @@ func (client DisksClient) RevokeAccessPreparer(ctx context.Context, resourceGrou
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/disks.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/disks.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
@@ -758,11 +730,7 @@ func (client DisksClient) UpdatePreparer(ctx context.Context, resourceGroupName 
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-03-01/compute/disks.go
-	const APIVersion = "2021-12-01"
-========
 	const APIVersion = "2022-07-02"
->>>>>>>> upstream-release-1.29.0:cluster-autoscaler/vendor/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2022-08-01/compute/disks.go
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
