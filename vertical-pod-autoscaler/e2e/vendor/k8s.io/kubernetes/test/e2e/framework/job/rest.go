@@ -46,21 +46,6 @@ func GetAllRunningJobPods(ctx context.Context, c clientset.Interface, ns, jobNam
 	}
 }
 
-// GetAllRunningJobPods returns a list of all running Pods belonging to a Job.
-func GetAllRunningJobPods(c clientset.Interface, ns, jobName string) ([]v1.Pod, error) {
-	if podList, err := GetJobPods(c, ns, jobName); err != nil {
-		return nil, err
-	} else {
-		pods := []v1.Pod{}
-		for _, pod := range podList.Items {
-			if pod.Status.Phase == v1.PodRunning {
-				pods = append(pods, pod)
-			}
-		}
-		return pods, nil
-	}
-}
-
 // GetJobPods returns a list of Pods belonging to a Job.
 func GetJobPods(ctx context.Context, c clientset.Interface, ns, jobName string) (*v1.PodList, error) {
 	label := labels.SelectorFromSet(labels.Set(map[string]string{JobSelectorKey: jobName}))

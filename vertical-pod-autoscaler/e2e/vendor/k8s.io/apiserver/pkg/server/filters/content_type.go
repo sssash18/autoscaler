@@ -1,5 +1,5 @@
 /*
-Copyright 2023 The Kubernetes Authors.
+Copyright 2019 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,21 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-<<<<<<<< HEAD:cluster-autoscaler/estimator/threshold.go
-package estimator
-
-import (
-	"time"
-
-	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
-)
-
-// Threshold provides resources configuration for threshold based estimation limiter.
-// Return value of 0 means that no limit is set.
-type Threshold interface {
-	NodeLimit(cloudprovider.NodeGroup, EstimationContext) int
-	DurationLimit(cloudprovider.NodeGroup, EstimationContext) time.Duration
-========
 package filters
 
 import "net/http"
@@ -40,5 +25,4 @@ func WithContentType(handler http.Handler, contentType string) http.Handler {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		handler.ServeHTTP(w, r)
 	})
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/apiserver/pkg/server/filters/content_type.go
 }

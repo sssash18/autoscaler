@@ -34,11 +34,6 @@ const (
 	VolumeMountPath1        = "/mnt/volume1"
 )
 
-const (
-	VolumeMountPathTemplate = "/mnt/volume%d"
-	VolumeMountPath1        = "/mnt/volume1"
-)
-
 // Config is a struct containing all arguments for creating a pod.
 // SELinux testing requires to pass HostIPC and HostPID as boolean arguments.
 type Config struct {

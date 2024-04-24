@@ -2,11 +2,7 @@
 // +build !windows
 
 /*
-<<<<<<<< HEAD:cluster-autoscaler/vendor/k8s.io/kubernetes/pkg/kubelet/network/dns/dns_other.go
-Copyright 2023 The Kubernetes Authors.
-========
 Copyright 2017 The Kubernetes Authors.
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/apiserver/pkg/server/signal_posix.go
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,12 +17,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/k8s.io/kubernetes/pkg/kubelet/network/dns/dns_other.go
-package dns
-
-// Read the DNS configuration from a resolv.conf file.
-var getHostDNSConfig = getDNSConfig
-========
 package server
 
 import (
@@ -35,4 +25,3 @@ import (
 )
 
 var shutdownSignals = []os.Signal{os.Interrupt, syscall.SIGTERM}
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/apiserver/pkg/server/signal_posix.go

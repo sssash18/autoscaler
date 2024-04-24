@@ -1,5 +1,3 @@
-//go:build !linux && !windows
-
 /*
 Copyright 2022 The Kubernetes Authors.
 
@@ -16,23 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/k8s.io/kubernetes/pkg/kubelet/kubelet_server_journal_others.go
-package kubelet
-
-import (
-	"context"
-	"errors"
-)
-
-// getLoggingCmd on unsupported operating systems returns the echo command and a warning message (as strings)
-func getLoggingCmd(n *nodeLogQuery, services []string) (string, []string, error) {
-	return "", []string{}, errors.New("Operating System Not Supported")
-}
-
-// checkForNativeLogger on unsupported operating systems returns false
-func checkForNativeLogger(ctx context.Context, service string) bool {
-	return false
-========
 package generic
 
 import (
@@ -52,5 +33,4 @@ func NewInformer[T runtime.Object](informe cache.SharedIndexInformer) Informer[T
 		SharedIndexInformer: informe,
 		lister:              NewLister[T](informe.GetIndexer()),
 	}
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/apiserver/pkg/admission/plugin/validatingadmissionpolicy/internal/generic/informer.go
 }

@@ -593,27 +593,6 @@ func (*replicaSetFactory) Create(ctx context.Context, f *framework.Framework, ns
 	}, nil
 }
 
-type replicaSetFactory struct{}
-
-func (f *replicaSetFactory) New() runtime.Object {
-	return &appsv1.ReplicaSet{}
-}
-
-func (*replicaSetFactory) Create(f *framework.Framework, ns *v1.Namespace, i interface{}) (func() error, error) {
-	item, ok := i.(*appsv1.ReplicaSet)
-	if !ok {
-		return nil, errorItemNotSupported
-	}
-
-	client := f.ClientSet.AppsV1().ReplicaSets(ns.Name)
-	if _, err := client.Create(context.TODO(), item, metav1.CreateOptions{}); err != nil {
-		return nil, fmt.Errorf("create ReplicaSet: %w", err)
-	}
-	return func() error {
-		return client.Delete(context.TODO(), item.GetName(), metav1.DeleteOptions{})
-	}, nil
-}
-
 type storageClassFactory struct{}
 
 func (f *storageClassFactory) New() runtime.Object {

@@ -14,23 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-<<<<<<<< HEAD:vertical-pod-autoscaler/e2e/vendor/k8s.io/kubernetes/pkg/registry/core/service/allocator/utils.go
-package allocator
-
-import (
-	"math/big"
-	"math/bits"
-)
-
-// countBits returns the number of set bits in n
-func countBits(n *big.Int) int {
-	var count int = 0
-	for _, w := range n.Bits() {
-		count += bits.OnesCount64(uint64(w))
-	}
-	return count
-}
-========
 // Package storage contains the plumbing to setup the etcd storage of the apiserver.
 package storage // import "k8s.io/apiserver/pkg/server/storage"
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/apiserver/pkg/server/storage/doc.go

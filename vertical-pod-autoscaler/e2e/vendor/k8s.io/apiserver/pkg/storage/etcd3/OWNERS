@@ -1,12 +1,4 @@
 # See the OWNERS docs at https://go.k8s.io/owners
 
 reviewers:
-<<<<<<<< HEAD:vertical-pod-autoscaler/e2e/vendor/k8s.io/kubernetes/pkg/scheduler/framework/plugins/dynamicresources/OWNERS
-  - klueska
-  - pohly
-  - bart0sh
-labels:
-  - sig/node
-========
   - wojtek-t
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/apiserver/pkg/storage/etcd3/OWNERS

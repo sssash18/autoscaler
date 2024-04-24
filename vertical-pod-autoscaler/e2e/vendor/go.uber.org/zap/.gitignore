@@ -6,10 +6,7 @@
 # Folders
 _obj
 _test
-<<<<<<<< HEAD:cluster-autoscaler/cloudprovider/oci/vendor-internal/github.com/gofrs/flock/.gitignore
-========
 vendor
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/e2e/vendor/go.uber.org/zap/.gitignore
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -26,8 +23,6 @@ _testmain.go
 *.exe
 *.test
 *.prof
-<<<<<<<< HEAD:cluster-autoscaler/cloudprovider/oci/vendor-internal/github.com/gofrs/flock/.gitignore
-========
 *.pprof
 *.out
 *.log
@@ -35,4 +30,3 @@ _testmain.go
 /bin
 cover.out
 cover.html
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/e2e/vendor/go.uber.org/zap/.gitignore

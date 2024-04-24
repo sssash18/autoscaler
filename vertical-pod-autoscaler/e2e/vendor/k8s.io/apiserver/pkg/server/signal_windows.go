@@ -1,5 +1,5 @@
 /*
-Copyright 2020 The Kubernetes Authors.
+Copyright 2017 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,11 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/k8s.io/cloud-provider/controllers/service/config/doc.go
-// +k8s:deepcopy-gen=package
-
-package config // import "k8s.io/cloud-provider/controllers/service/config"
-========
 package server
 
 import (
@@ -26,4 +21,3 @@ import (
 )
 
 var shutdownSignals = []os.Signal{os.Interrupt}
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/apiserver/pkg/server/signal_windows.go
