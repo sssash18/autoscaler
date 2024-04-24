@@ -210,4 +210,3 @@ func (bp *ScaleDownBudgetProcessor) categorize(groups []*NodeGroupView) (individ
 	}
 	return individual, atomic
 }
-
