@@ -23,18 +23,10 @@ import (
 	"strings"
 	"sync"
 
-<<<<<<<< HEAD:vertical-pod-autoscaler/e2e/vendor/github.com/prometheus/client_golang/prometheus/go_collector_latest.go
-	//nolint:staticcheck // Ignore SA1019. Need to keep deprecated package for compatibility.
-	"github.com/golang/protobuf/proto"
-	dto "github.com/prometheus/client_model/go"
-
-	"github.com/prometheus/client_golang/prometheus/internal"
-========
 	"github.com/prometheus/client_golang/prometheus/internal"
 
 	dto "github.com/prometheus/client_model/go"
 	"google.golang.org/protobuf/proto"
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/vendor/github.com/prometheus/client_golang/prometheus/go_collector_latest.go
 )
 
 const (

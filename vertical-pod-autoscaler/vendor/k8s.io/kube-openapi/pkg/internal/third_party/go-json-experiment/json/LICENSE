@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:cluster-autoscaler/vendor/golang.org/x/tools/LICENSE
-Copyright (c) 2009 The Go Authors. All rights reserved.
-========
 Copyright (c) 2020 The Go Authors. All rights reserved.
->>>>>>>> upstream-release-1.29.0:vertical-pod-autoscaler/vendor/k8s.io/kube-openapi/pkg/internal/third_party/go-json-experiment/json/LICENSE
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
