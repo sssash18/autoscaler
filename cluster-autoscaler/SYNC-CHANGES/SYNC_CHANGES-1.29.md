@@ -16,7 +16,7 @@
 [v1.29.0](https://github.com/kubernetes/autoscaler/releases/tag/cluster-autoscaler-1.29.0)
 
 ## Changes made
-- See general release notes of 1.29.0: https://github.com/kubernetes/autoscaler/releases/tag/cluster-autoscaler-1.28.0
+- See general release notes of 1.29.0: https://github.com/kubernetes/autoscaler/releases/tag/cluster-autoscaler-1.29.0
 - New flag added in autoscaling options: flag.Bool("scale-down-delay-type-local", false, "Should --scale-down-delay-after-* flags be applied locally per nodegroup or globally across all nodegroups")
 - New flag added in autoscaling options: pflag.StringSlice("bypassed-scheduler-names", []string{}, fmt.Sprintf("Names of schedulers to bypass. If set to non-empty value, CA will not wait for pods to reach a certain age before triggering a scale-up."))
 - New flag added in autoscaling options: flag.String("drain-priority-config", "",
