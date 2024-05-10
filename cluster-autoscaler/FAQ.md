@@ -67,7 +67,7 @@ this document:
   * [How can I run e2e tests?](#how-can-i-run-e2e-tests)
   * [How should I test my code before submitting PR?](#how-should-i-test-my-code-before-submitting-pr)
   * [How can I update CA dependencies (particularly k8s.io/kubernetes)?](#how-can-i-update-ca-dependencies-particularly-k8siokubernetes)
-  
+
 * [In the context of Gardener](#in-the-context-of-gardener)
   * [For User](#for-user)
     * [When does autoscaler back off early from a node group?](#when-does-autoscaler-backs-off-early-from-a-node-group)
@@ -1137,7 +1137,7 @@ If you need to update vendor to an unreleased commit of Kubernetes, you can use 
 Caveats:
  - `update-vendor.sh` is called directly in shell (no docker is used) therefore its operation may differ from environment to environment.
  - It is important that go version, which isn in use in the shell in which `update-vendor.sh` is called, matches the `go <version>` directive specified in `go.mod` file
-  in `kubernetes/kubernetes` revision against which revendoring is done.
+   in `kubernetes/kubernetes` revision against which revendoring is done.
  - `update-vendor.sh` automatically runs unit tests as part of verification process. If one needs to suppress that, it can be done by overriding `VERIFY_COMMAND` variable (`VERIFY_COMMAND=true ./hack/update-vendor.sh ...`)
  - If one wants to only add new libraries to `go.mod-extra`, but not change the base `go.mod`, `-r` should be used with kubernetes/kubernets revision, which was used last time `update-vendor.sh` was called. One can determine that revision by looking at `git log` in Cluster Autoscaler repository. Following command will do the trick `git log | grep "Updating vendor against"`.
 
@@ -1210,9 +1210,9 @@ Assumption: We assume that the developer executing the below stages wants to syn
 1. Execute: `git fetch --all`
 1. Checkout the `releaseBranch`: `git checkout -b upstream-release-1.x.0 upstream/cluster-autoscaler-release-1.x.0`
 1. Hard Reset to the `releaseCommitId`: `git reset --hard releaseCommitId`
-1. Check out and pull the primary branch for gardener fork which is not `master`/`main` but is instead named `machine-controller-manager-provider`:
-  1. `git checkout machine-controller-manager-provider`
-  1. `git pull origin machine-controller-manager-provider`
+1. Check out and pull the primary branch for gardener fork which is not `master`/`main` but is instead named `machine-controller-manager-provider`: 
+   1. `git checkout machine-controller-manager-provider`
+   1. `git pull origin machine-controller-manager-provider`
 
 #### Stage C:  Create Sync Branch, Perform Merge, Fix Vendor
 1. Create a sync branch: `git checkout -b sync-upstream-v1.x.0`. For example, if you are syncing against `1.26.0`, this would be: `git checkout -b sync-upstream-v1.26.0`
@@ -1220,7 +1220,7 @@ Assumption: We assume that the developer executing the below stages wants to syn
    - This is where changes of master get merged in. advantage of merging is it won’t change the commit hashes of already existing commits.
    - Accept all vpa changes.
    - Accept our changes in `go.mod` and `go.sum` and `vendor` directory.  (The `hack/update-vendor.sh` script which will be executed in later step expected to fix things)
-   - Accept the version in `cluster-autoscler/version/version.go` . This is the version of kubernetes autoscaler with which syncing is being done.
+   - Accept the version in `cluster-autoscler/version/version.go` . This is the version of kubernetes autoscaler with which syncing is being done. 
 1. In `cluster-autoscaler/go.mod`, upgrade versions of `machine-controller-manager-provider-aws`,  `machine-controller-manager-provider-azure` to the latest available release.
 1. Run update vendor script after changing to `cluster-autoscaler` directory:  `./hack/update-vendor.sh 1.x.0` 
    - If the above still gives test issues then use `rsync` or `diff -rq` to figure out differences in `vendor` directory between upstream and our fork and synchronize them manually.
@@ -1281,6 +1281,7 @@ git remote add origin git@github.com:gardener/autoscaler.git
 
 git checkout machine-controller-manager-provider
 git pull origin machine-controller-manager-provider
+
 git log | grep "Updating vendor against"  # Please save commit-hash from the first line of the output, it'll be used later, eg: 3eb90c19d0cf90b756c3e08e32c6495b91e0aeed
 
 ``` 
@@ -1303,6 +1304,7 @@ If you are interested in vendoring MCM from the local-system or personal fork fo
 replace (
   ...
   github.com/gardener/machine-controller-manager => <$GOPATH>/src/github.com/gardener/machine-controller-manager 
+  
   // OR you could also use the personal github-handle.
   // github.com/gardener/machine-controller-manager => https://github.com/<USERNAME>/machine-controller-manager/tree/<BRANCH_NAME>
 )
