@@ -1135,11 +1135,11 @@ If you need to update vendor to an unreleased commit of Kubernetes, you can use 
 ```
 
 Caveats:
-- `update-vendor.sh` is called directly in shell (no docker is used) therefore its operation may differ from environment to environment.
-- It is important that go version, which isn in use in the shell in which `update-vendor.sh` is called, matches the `go <version>` directive specified in `go.mod` file
+ - `update-vendor.sh` is called directly in shell (no docker is used) therefore its operation may differ from environment to environment.
+ - It is important that go version, which isn in use in the shell in which `update-vendor.sh` is called, matches the `go <version>` directive specified in `go.mod` file
   in `kubernetes/kubernetes` revision against which revendoring is done.
-- `update-vendor.sh` automatically runs unit tests as part of verification process. If one needs to suppress that, it can be done by overriding `VERIFY_COMMAND` variable (`VERIFY_COMMAND=true ./hack/update-vendor.sh ...`)
-- If one wants to only add new libraries to `go.mod-extra`, but not change the base `go.mod`, `-r` should be used with kubernetes/kubernets revision, which was used last time `update-vendor.sh` was called. One can determine that revision by looking at `git log` in Cluster Autoscaler repository. Following command will do the trick `git log | grep "Updating vendor against"`.
+ - `update-vendor.sh` automatically runs unit tests as part of verification process. If one needs to suppress that, it can be done by overriding `VERIFY_COMMAND` variable (`VERIFY_COMMAND=true ./hack/update-vendor.sh ...`)
+ - If one wants to only add new libraries to `go.mod-extra`, but not change the base `go.mod`, `-r` should be used with kubernetes/kubernets revision, which was used last time `update-vendor.sh` was called. One can determine that revision by looking at `git log` in Cluster Autoscaler repository. Following command will do the trick `git log | grep "Updating vendor against"`.
 
 
 # In the context of Gardener:
@@ -1150,7 +1150,7 @@ Caveats:
 Autoscaler backs off from a node group if the scale-up requested doesn't succeed. Autoscaler decides to backoff based on:
 - Timeout
   - if the node doesn't join in `max-node-provision-time`
-- `ResourceExhausted` error
+- `ResourceExhausted` error 
   - if the node doesn't join due to error from cloud provider side, and the error is classified as `ResourceExhausted`
 - Scale up operation fails for a node group
 
@@ -1159,7 +1159,7 @@ As the name suggests, early back-off doesn't wait till `timeout` but backs off w
 Currently early-backoff is enabled only for `ResourceExhausted` errors. Errors classified as `ResourceExhausted` are(and not limited to):
 - `out of quota` errors where customer quota is exhausted, and the quota is configurable per zone (not per region). Generally quotas for VMs, cpus, gpus and disks are configurable per zone, but please confirm the same for your cloud provider
 - `out of stock` errors where cloud-provider doesn't have enough resources in the particular zone, but the resource is available in other zones
-- `not-supported` errors where the instance type or disk type is not supported in the particular zone.
+- `not-supported` errors where the instance type or disk type is not supported in the particular zone. 
 
 Errors not classified as `ResourceExhausted` are:(and not limited to):
 - `invalid credentials`
@@ -1181,14 +1181,14 @@ Case:
 
 then autoscaler will early backoff and try to remove the node, but the node removal won't succeed as currently CA is not allowed to perform any scale-down/delete node operation for a rolling update node-grp.
 
-In the above scenario, CA won't try to scale-up any other node-grp for `podA` as it still calculates `node1` to be a possible candidate to join(`ResourceExhausted` errors are recoverable errors).
-Scale-up would still work for any new pods that can't fit on upcoming `node1` but can fit on some other node group.
+In the above scenario, CA won't try to scale-up any other node-grp for `podA` as it still calculates `node1` to be a possible candidate to join(`ResourceExhausted` errors are recoverable errors). 
+Scale-up would still work for any new pods that can't fit on upcoming `node1` but can fit on some other node group. 
 
-The scale-up would stay blocked for such pod(s) for maximum `max-node-provision-time` , because after that the node won't be considered an upcoming node
+The scale-up would stay blocked for such pod(s) for maximum `max-node-provision-time` , because after that the node won't be considered an upcoming node 
 
 Refer issue https://github.com/gardener/autoscaler/issues/154 to track changes made for early-backoff enablement
 
-## For Developer
+## For Developer 
 ### How do I sync gardener autoscaler with an upstream autoscaler minor release?
 
 This is helpful in order to offer Gardener CA with latest or recent K8s version. Note that this may also demand a need to upgrade K8s version used by Machine Controller Manager.
@@ -1200,13 +1200,13 @@ Assumption: We assume that the developer executing the below stages wants to syn
 1. Go to: [K8S Autoscaler Releases](https://github.com/kubernetes/autoscaler/releases) and navigate to the release page of the specific `1.x.0` release. Example: [cluster-autoscaler-1.26.0 Release Page](https://github.com/kubernetes/autoscaler/releases/tag/cluster-autoscaler-1.26.0).
 1. Record the commit id of the release mentioned in this release page. For example, commit id of 1.26.0 release is [3b2e3db9413755d4eddabdde44eab60987a17edd](https://github.com/kubernetes/autoscaler/commit/3b2e3db9413755d4eddabdde44eab60987a17edd). We will call this as `releaseCommitId`.
 2. Identify the release branch from [K8S Autoscaler Branches](https://github.com/kubernetes/autoscaler/branches). For example release branch for `1.26` is [cluster-autoscaler-release-1.26](https://github.com/kubernetes/autoscaler/tree/cluster-autoscaler-release-1.26). We will cal lthis as `releaseBranch`
-
+ 
 #### Stage B: Setup Local Repo Before Merge
 1. Fork `github.com/gardener/autoscaler` into your github account named `user` such that you now have a forked repo `https://github.com/user/autoscaler`
 1. Check out `github.com/gardener/autoscaler` under `$GOPATH/src/k8s.io`
 1. Change to checked-out `autoscaler` dir and set `upstream`  and `user` (fork) targets
-  1. `git remote add user https://github.com/user/autoscaler`
-  1. `git remote add upstream https://github.com/kubernetes/autoscaler.git`
+    1. `git remote add user https://github.com/user/autoscaler`
+    1. `git remote add upstream https://github.com/kubernetes/autoscaler.git`
 1. Execute: `git fetch --all`
 1. Checkout the `releaseBranch`: `git checkout -b upstream-release-1.x.0 upstream/cluster-autoscaler-release-1.x.0`
 1. Hard Reset to the `releaseCommitId`: `git reset --hard releaseCommitId`
@@ -1217,26 +1217,26 @@ Assumption: We assume that the developer executing the below stages wants to syn
 #### Stage C:  Create Sync Branch, Perform Merge, Fix Vendor
 1. Create a sync branch: `git checkout -b sync-upstream-v1.x.0`. For example, if you are syncing against `1.26.0`, this would be: `git checkout -b sync-upstream-v1.26.0`
 1. Merge against the `releaseBranch` (which you had hard-reset to the `releaseCommitId` earlier): `git merge upstream-release-1.x.0`
-  - This is where changes of master get merged in. advantage of merging is it won’t change the commit hashes of already existing commits.
-  - Accept all vpa changes.
-  - Accept our changes in `go.mod` and `go.sum` and `vendor` directory.  (The `hack/update-vendor.sh` script which will be executed in later step expected to fix things)
-  - Accept the version in `cluster-autoscler/version/version.go` . This is the version of kubernetes autoscaler with which syncing is being done.
+   - This is where changes of master get merged in. advantage of merging is it won’t change the commit hashes of already existing commits.
+   - Accept all vpa changes.
+   - Accept our changes in `go.mod` and `go.sum` and `vendor` directory.  (The `hack/update-vendor.sh` script which will be executed in later step expected to fix things)
+   - Accept the version in `cluster-autoscler/version/version.go` . This is the version of kubernetes autoscaler with which syncing is being done.
 1. In `cluster-autoscaler/go.mod`, upgrade versions of `machine-controller-manager-provider-aws`,  `machine-controller-manager-provider-azure` to the latest available release.
-1. Run update vendor script after changing to `cluster-autoscaler` directory:  `./hack/update-vendor.sh 1.x.0`
-  - If the above still gives test issues then use `rsync` or `diff -rq` to figure out differences in `vendor` directory between upstream and our fork and synchronize them manually.
+1. Run update vendor script after changing to `cluster-autoscaler` directory:  `./hack/update-vendor.sh 1.x.0` 
+   - If the above still gives test issues then use `rsync` or `diff -rq` to figure out differences in `vendor` directory between upstream and our fork and synchronize them manually.
 1. Create a new file `cluster-autoscaler/SYNC-CHANGES/SYNC_CHANGES-1.x.md` summarily describing the changes done. Follow existing convention for sync changes. Use upstream release notes as a guide when needed.
 
 #### Stage D: Verification
-1. Run Core Autoscaler Unit tests: `cd cluster-autoscaler; go test $(go list ./... | grep -v cloudprovider | grep -v vendor | grep -v integration)`
+1. Run Core Autoscaler Unit tests: `cd cluster-autoscaler; go test $(go list ./... | grep -v cloudprovider | grep -v vendor | grep -v integration)` 
 1. Run MCM cloud provider implementation tests: `go test $(go list ./cloudprovider/mcm/... | grep -v vendor)`
 1. Verify that binary can be created using: `../.ci/build`
 1. Execute Integration Tests Locally:
-  1. Follow instructions at: [IT Usage Guide](https://github.com/gardener/autoscaler/blob/machine-controller-manager-provider/cluster-autoscaler/integration/usage.md##prerequisite)
-  1. Before running `make download-kubeconfigs`, create a folder `mkdir -p dev/kubeconfigs`
-  1. This target will print out a list of shell variable `EXPORT` statements. Copy-paste the printed shell commands and execute them
-  1. Now run `make test-integration`
+   1. Follow instructions at: [IT Usage Guide](https://github.com/gardener/autoscaler/blob/machine-controller-manager-provider/cluster-autoscaler/integration/usage.md##prerequisite)
+   1. Before running `make download-kubeconfigs`, create a folder `mkdir -p dev/kubeconfigs`
+   1. This target will print out a list of shell variable `EXPORT` statements. Copy-paste the printed shell commands and execute them
+   1. Now run `make test-integration`
 
-#### Stage E: Finalization
+#### Stage E: Finalization 
 1. Update the [Release Matrix Table](https://github.com/gardener/autoscaler/tree/machine-controller-manager-provider/cluster-autoscaler#releases-gardenerautoscaler)
 1. Update any RBAC rules if required
 1. Make a commit and push to your forked repo: `git push user sync-upstream-v1.x.0`
@@ -1247,13 +1247,13 @@ Assumption: We assume that the developer executing the below stages wants to syn
 
 Please consider reading the answer [above](#how-can-i-update-ca-dependencies-particularly-k8siokubernetes) beforehand of updating the dependencies for better understanding.
 
-Autoscaler vendors the MCM as an extra-package. And both MCM and Autoscaler vendors the `k8s.io` as a dependency. To avoid the vendor-conflicts, MCM and Autosclaler need to
-vendor a same(or compatible) versions of `k8s.io`. Few times, you might have to revendor MCM into Autoscaler only due to the change of the `k8s.io` dependency in the autoscaler.
+Autoscaler vendors the MCM as an extra-package. And both MCM and Autoscaler vendors the `k8s.io` as a dependency. To avoid the vendor-conflicts, MCM and Autosclaler need to 
+vendor a same(or compatible) versions of `k8s.io`. Few times, you might have to revendor MCM into Autoscaler only due to the change of the `k8s.io` dependency in the autoscaler. 
 Please follow below steps to vendor new version of MCM:
 
 #### Step 1 (Optional)
 
-Vendor compatible `k8s.io` dependency into the MCM.
+Vendor compatible `k8s.io` dependency into the MCM. 
 
 
 _Please make sure to vendor same `k8s.io` version into MCM, as the one already vendored in the autoscaler. As vendoring lower version of `k8s.io` into MCM, <b>and later into the autoscaler</b> may force entire autoscaler to use such low version of `k8s.io`. This can cause runtime issues if not build-issues._
@@ -1266,6 +1266,7 @@ Update the `go.mod` file in the MCM to reflect expected versions of `k8s.io`. Th
 ```
 cd <MCM_DIR>
 make revendor
+
 ./hack/generate-code # regenerates the clients.
 ```
 Autoscaler only vendors the `client` and `apis` related packages of the MCM, hence the `controller` package doesn't need to be adapted immediately in order to vendor MCM in Autoscaler.
@@ -1277,9 +1278,11 @@ Setup the local-environment:
 git clone https://github.com/gardener/autoscaler.git
 cd autoscaler/cluster-autoscaler
 git remote add origin git@github.com:gardener/autoscaler.git
+
 git checkout machine-controller-manager-provider
 git pull origin machine-controller-manager-provider
 git log | grep "Updating vendor against"  # Please save commit-hash from the first line of the output, it'll be used later, eg: 3eb90c19d0cf90b756c3e08e32c6495b91e0aeed
+
 ``` 
 
 
@@ -1293,7 +1296,7 @@ require (
 )
 ```
 
-If you are interested in vendoring MCM from the local-system or personal fork for testing, you can also add the `replace` section in `go.mod-extra` as shown below.
+If you are interested in vendoring MCM from the local-system or personal fork for testing, you can also add the `replace` section in `go.mod-extra` as shown below. 
 
 ```
 // Replace the <$GOPATH> with the actual go-path. 
@@ -1303,9 +1306,13 @@ replace (
   // OR you could also use the personal github-handle.
   // github.com/gardener/machine-controller-manager => https://github.com/<USERNAME>/machine-controller-manager/tree/<BRANCH_NAME>
 )
+
 #### Step 4(Optional):
+
 This fork of the autoscaler vendors the [machine-controller-manager](https://github.com/gardener/machine-controller-manager) aka MCM from Gardener project. As the MCM itself vendors the `k8s.io` in it, we need to make following change to the [`update-vendor`](https://github.com/gardener/autoscaler/blob/master/cluster-autoscaler/hack/update-vendor.sh) script:
+
 Disable the check of implicit-dependencies of go.mod by commenting out following code in the update-vendor script.
+
 #  if [[ "${IMPLICIT_FOUND}" == "true" ]]; then
 #    err_rerun "Implicit dependencies missing from go.mod-extra"
 #  fi
@@ -1326,17 +1333,19 @@ Execute the script below:
 VERIFY_COMMAND=true ./hack/update-vendor.sh
 ```
 
-The script automatically runs the unit-tests for all the providers and of the core-logic, it can be disabled by
+The script automatically runs the unit-tests for all the providers and of the core-logic, it can be disabled by 
 setting the `VERIFY_COMMAND=true` while runniing the script.
 
-The script shall create a directory under the `/tmp`, and logs of the execution-progress is also available there.
+The script shall create a directory under the `/tmp`, and logs of the execution-progress is also available there. 
 Once script is successfully executed, execute following commands to confirm the correctness.
 ```
 # You must see a new commit created by the script containing the commit-hash.
 git status 
+
 # Try following steps to confirm the correctness.
 go test $(go list ../cluster-autoscaler/... | grep -v cloudprovider | grep -v vendor | grep -v integration)
 go test $(go list ../cluster-autoscaler/cloudprovider/mcm/... | grep -v vendor | grep -v integration)
+
 go build main.go
 go run main.go --kubeconfig=kubeconfig.yaml --cloud-provider=mcm --nodes=0:3:ca-test.test-machine-deployment
 ```
