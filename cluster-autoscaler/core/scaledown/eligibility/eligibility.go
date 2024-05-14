@@ -161,10 +161,10 @@ func (c *Checker) unremovableReasonAndNodeUtilization(context *context.Autoscali
 	if !underutilized {
 		klog.V(4).Infof("Node %s unremovable: %s requested (%.6g%% of allocatable) is above the scale-down utilization threshold", node.Name, utilInfo.ResourceName, utilInfo.Utilization*100)
 		return simulator.NotUnderutilized, &utilInfo
-	} else {
-		// FORK-CHANGE: log added to identify underutilized nodes
-		klog.V(2).Infof("Node %s is underutilized: %s requested (%.6g%% of allocatable) is below the scale-down utilization threshold", node.Name, utilInfo.ResourceName, utilInfo.Utilization*100)
 	}
+
+	// FORK-CHANGE: log added to identify underutilized nodes
+	klog.V(2).Infof("Node %s is underutilized: %s requested (%.6g%% of allocatable) is below the scale-down utilization threshold", node.Name, utilInfo.ResourceName, utilInfo.Utilization*100)
 
 	klogx.V(4).UpTo(utilLogsQuota).Infof("Node %s - %s requested is %.6g%% of allocatable", node.Name, utilInfo.ResourceName, utilInfo.Utilization*100)
 
