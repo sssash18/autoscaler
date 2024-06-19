@@ -1,28 +1,36 @@
 package virtual
 
 import (
-	"encoding/json"
 	"fmt"
+	gct "github.com/elankath/gardener-cluster-types"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
 	"k8s.io/autoscaler/cluster-autoscaler/config"
 	"k8s.io/autoscaler/cluster-autoscaler/utils/errors"
+	"k8s.io/autoscaler/cluster-autoscaler/utils/gpu"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
+	kubeletapis "k8s.io/kubelet/pkg/apis"
 	schedulerframework "k8s.io/kubernetes/pkg/scheduler/framework"
+	"math/rand"
 	"os"
 	"reflect"
+	"strconv"
+	"strings"
+	"time"
 )
 
 type VirtualNodeGroup struct {
-	Name       string
-	poolName   string
-	zone       string
-	targetSize int
-	minSize    int
-	maxSize    int
+	gct.NodeGroupInfo
+	nodeTemplate gct.NodeTemplate
+	instances    []cloudprovider.Instance
+	clientSet    *kubernetes.Clientset
 }
 
 var _ cloudprovider.NodeGroup = (*VirtualNodeGroup)(nil)
@@ -30,38 +38,10 @@ var _ cloudprovider.NodeGroup = (*VirtualNodeGroup)(nil)
 const GPULabel = "virtual/gpu"
 
 type VirtualCloudProvider struct {
-	clusterInfo     *clusterInfo
-	resourceLimiter *cloudprovider.ResourceLimiter
-}
-
-type VirtualWorkerPool struct {
-	MachineType    string
-	Architecture   string
-	Minimum        int
-	Maximum        int
-	MaxSurge       intstr.IntOrString
-	MaxUnavailable intstr.IntOrString
-	Zones          []string
-}
-
-type VirtualMachineDeployment struct {
-}
-
-type VirtualNodeTemplate struct {
-	Name         string
-	CPU          string
-	GPU          string
-	Memory       string
-	InstanceType string
-	Region       string
-	Zone         string
-	Tags         map[string]string
-}
-
-type clusterInfo struct {
-	nodeTemplates map[string]VirtualNodeTemplate
-	nodeGroups    map[string]VirtualNodeGroup
-	workerPools   []VirtualWorkerPool
+	clusterInfo       *ClusterInfo
+	resourceLimiter   *cloudprovider.ResourceLimiter
+	clientSet         *kubernetes.Clientset
+	virtualNodeGroups map[string]*VirtualNodeGroup
 }
 
 func BuildVirtual(opts config.AutoscalingOptions, do cloudprovider.NodeGroupDiscoveryOptions, rl *cloudprovider.ResourceLimiter) cloudprovider.CloudProvider {
@@ -70,22 +50,52 @@ func BuildVirtual(opts config.AutoscalingOptions, do cloudprovider.NodeGroupDisc
 		return nil
 	}
 
+	kubeConfigPath := opts.KubeClientOpts.KubeConfigPath
+
+	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigPath)
+	if err != nil {
+		klog.Fatalf("cannot build config from kubeConfigPath: %s, error: %s", kubeConfigPath, err.Error())
+	}
+
+	config.Burst = opts.KubeClientOpts.KubeClientBurst
+	config.QPS = opts.KubeClientOpts.KubeClientQPS
+	clientSet, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		klog.Fatalf("failed to create the client: %s", err.Error())
+	}
+
 	clusterInfoPath := os.Getenv("GARDENER_CLUSTER_INFO")
 	clusterHistoryPath := os.Getenv("GARDENER_CLUSTER_HISTORY")
-	shootName := os.Getenv("SHOOT_NAME")
 	if clusterHistoryPath == "" && clusterInfoPath == "" {
 		klog.Fatalf("cannot create virtual provider one of env var GARDENER_CLUSTER_INFO or GARDENER_CLUSTER_HISTORY needs to be set.")
 		return nil
 	}
 
-	if clusterInfoPath != "" && shootName != "" {
-		clusterInfo, err := readInitClusterInfo(clusterInfoPath, shootName)
+	if clusterInfoPath != "" {
+		clusterInfo, err := readInitClusterInfo(clusterInfoPath)
 		if err != nil {
 			klog.Fatalf("cannot build the virtual cloud provider: %s", err.Error())
 		}
+		virtualNodeGroups := make(map[string]*VirtualNodeGroup)
+		for name, ng := range clusterInfo.NodeGroups {
+			virtualNodeGroup := VirtualNodeGroup{
+				NodeGroupInfo: ng,
+				nodeTemplate:  gct.NodeTemplate{},
+				instances:     nil,
+				clientSet:     clientSet,
+			}
+			//populateNodeTemplateTaints(nodeTemplates,mcdData)
+			virtualNodeGroups[name] = &virtualNodeGroup
+		}
+		err = populateNodeTemplates(virtualNodeGroups, clusterInfo.NodeTemplates)
+		if err != nil {
+			klog.Fatalf("cannot construct the virtual cloud provider: %s", err.Error())
+		}
 		return &VirtualCloudProvider{
-			clusterInfo:     &clusterInfo,
-			resourceLimiter: rl,
+			virtualNodeGroups: virtualNodeGroups,
+			clusterInfo:       &clusterInfo,
+			resourceLimiter:   rl,
+			clientSet:         clientSet,
 		}
 	}
 
@@ -93,7 +103,7 @@ func BuildVirtual(opts config.AutoscalingOptions, do cloudprovider.NodeGroupDisc
 
 }
 
-func getIntOrString(val interface{}) intstr.IntOrString {
+func getIntOrString(val any) intstr.IntOrString {
 	var valIntOrString intstr.IntOrString
 	if reflect.TypeOf(val) == reflect.TypeOf("") {
 		valIntOrString = intstr.FromString(val.(string))
@@ -107,55 +117,81 @@ func getIntOrString(val interface{}) intstr.IntOrString {
 	return valIntOrString
 }
 
-func getVirtualWorkerPoolFromWorker(worker map[string]interface{}) VirtualWorkerPool {
-	architecture := worker["machine"].(map[string]interface{})["architecture"].(string)
-	machineType := worker["machine"].(map[string]interface{})["type"].(string)
-	minimum := worker["minimum"].(float64)
-	maximum := worker["maximum"].(float64)
-	maxSurge := worker["maxSurge"]
-	maxUnavailable := worker["maxUnavailable"].(float64)
-	zones := worker["zones"].([]interface{})
-	var zonesStr []string
-	for _, zone := range zones {
-		zonesStr = append(zonesStr, zone.(string))
+func getWorkerPoolInfo(workerPool map[string]any) (wP gct.WorkerPoolInfo, err error) {
+	architecture := workerPool["architecture"].(string)
+	machineType := workerPool["machineType"].(string)
+	minimum := workerPool["minimum"].(int64)
+	maximum := workerPool["maximum"].(int64)
+	maxSurge, err := AsIntOrString(workerPool["maxSurge"])
+	if err != nil {
+		return
 	}
-	return VirtualWorkerPool{
+	maxUnavailable, err := AsIntOrString(workerPool["maxUnavailable"])
+	if err != nil {
+		return
+	}
+	zonesVal := workerPool["zones"].([]any)
+	var zones []string
+	for _, zone := range zonesVal {
+		zones = append(zones, zone.(string))
+	}
+	wP = gct.WorkerPoolInfo{
 		MachineType:    machineType,
 		Architecture:   architecture,
 		Minimum:        int(minimum),
 		Maximum:        int(maximum),
-		MaxSurge:       getIntOrString(maxSurge),
-		MaxUnavailable: getIntOrString(int(maxUnavailable)),
-		Zones:          zonesStr,
-	}
-}
-
-func getVirtualWorkerPoolsFromShoot(shootDataMap map[string]interface{}) (virtualWorkerPools []VirtualWorkerPool) {
-	workers := ((shootDataMap["spec"].(map[string]interface{})["provider"]).(map[string]interface{}))["workers"].([]interface{})
-	for _, worker := range workers {
-		virtualWorkerPools = append(virtualWorkerPools, getVirtualWorkerPoolFromWorker(worker.(map[string]interface{})))
+		MaxSurge:       maxSurge,
+		MaxUnavailable: maxUnavailable,
+		Zones:          zones,
 	}
 	return
 }
 
-func getVirtualNodeTemplateFromMCC(mcc map[string]interface{}) VirtualNodeTemplate {
-	nodeTemplate := mcc["nodeTemplate"].(map[string]interface{})
-	providerSpec := mcc["providerSpec"].(map[string]interface{})
-	metadata := mcc["metadata"].(map[string]interface{})
-	cpu := nodeTemplate["capacity"].(map[string]interface{})["cpu"].(string)
-	gpu := nodeTemplate["capacity"].(map[string]interface{})["gpu"].(string)
-	memory := nodeTemplate["capacity"].(map[string]interface{})["memory"].(string)
+func getWorkerPoolsFromShootWorker(workerDataMap map[string]any) (virtualWorkerPools []gct.WorkerPoolInfo, err error) {
+	workerPools := workerDataMap["spec"].(map[string]any)["pools"].([]any)
+	for _, pool := range workerPools {
+		var wp gct.WorkerPoolInfo
+		wp, err = getWorkerPoolInfo(pool.(map[string]any))
+		if err != nil {
+			return
+		}
+		virtualWorkerPools = append(virtualWorkerPools, wp)
+	}
+	return
+}
+
+func getVirtualNodeTemplateFromMCC(mcc map[string]any) (nt gct.NodeTemplate, err error) {
+	nodeTemplate := mcc["nodeTemplate"].(map[string]any)
+	providerSpec := mcc["providerSpec"].(map[string]any)
+	metadata := mcc["metadata"].(map[string]any)
+	cpuVal := nodeTemplate["capacity"].(map[string]any)["cpu"].(string)
+	gpuVal := nodeTemplate["capacity"].(map[string]any)["gpu"].(string)
+	memoryVal := nodeTemplate["capacity"].(map[string]any)["memory"].(string)
 	instanceType := nodeTemplate["instanceType"].(string)
 	region := nodeTemplate["region"].(string)
 	zone := nodeTemplate["zone"].(string)
-	tags := providerSpec["tags"].(map[string]interface{})
+	tags := providerSpec["tags"].(map[string]any)
 	name := metadata["name"].(string)
 
 	tagsStrMap := make(map[string]string)
 	for tagKey, tagVal := range tags {
 		tagsStrMap[tagKey] = tagVal.(string)
 	}
-	return VirtualNodeTemplate{
+
+	cpu, err := resource.ParseQuantity(cpuVal)
+	if err != nil {
+		return
+	}
+	gpu, err := resource.ParseQuantity(gpuVal)
+	if err != nil {
+		return
+	}
+	memory, err := resource.ParseQuantity(memoryVal)
+	if err != nil {
+		return
+	}
+
+	nt = gct.NodeTemplate{
 		Name:         name,
 		CPU:          cpu,
 		GPU:          gpu,
@@ -165,93 +201,191 @@ func getVirtualNodeTemplateFromMCC(mcc map[string]interface{}) VirtualNodeTempla
 		Zone:         zone,
 		Tags:         tagsStrMap,
 	}
+	return
 }
 
-func getVirtualNodeTemplatesFromMCC(mccData map[string]interface{}) map[string]VirtualNodeTemplate {
-	mccList := mccData["items"].([]interface{})
-	var nodeTemplates []VirtualNodeTemplate
+func getNodeTemplatesFromMCC(mccData map[string]any) (map[string]gct.NodeTemplate, error) {
+	mccList := mccData["items"].([]any)
+	var nodeTemplates []gct.NodeTemplate
 	for _, mcc := range mccList {
-		nodeTemplates = append(nodeTemplates, getVirtualNodeTemplateFromMCC(mcc.(map[string]interface{})))
+		nodeTemplate, err := getVirtualNodeTemplateFromMCC(mcc.(map[string]any))
+		if err != nil {
+			return nil, fmt.Errorf("cannot build nodeTemplate: %w", err)
+		}
+		nodeTemplates = append(nodeTemplates, nodeTemplate)
 	}
-	return lo.KeyBy(nodeTemplates, func(item VirtualNodeTemplate) string {
-		return item.Name
-	})
+	namespace := mccList[0].(map[string]any)["metadata"].(map[string]any)["namespace"].(string)
+	return lo.KeyBy(nodeTemplates, func(item gct.NodeTemplate) string {
+		name := item.Name
+		idx := strings.LastIndex(name, "-")
+		// mcc name - shoot--i585976--suyash-local-worker-1-z1-0af3f , we omit the hash from the mcc name to match it with the nodegroup name
+		trimmedName := name[0:idx]
+		return fmt.Sprintf("%s.%s", namespace, trimmedName)
+	}), nil
 }
 
-func getVirtualNodeGroupFromMCD(mcd map[string]interface{}) VirtualNodeGroup {
-	specMap := mcd["spec"].(map[string]interface{})
-	metadataMap := mcd["metadata"].(map[string]interface{})
-	replicas := specMap["replicas"].(float64)
+func getVirtualNodeGroupFromMCD(mcd map[string]any) gct.NodeGroupInfo {
+	specMap := mcd["spec"].(map[string]any)
+	metadataMap := mcd["metadata"].(map[string]any)
+	replicasVal, ok := specMap["replicas"]
+	var replicas int
+	if !ok {
+		replicas = 0
+	} else {
+		replicas = int(replicasVal.(float64))
+	}
 	name := metadataMap["name"].(string)
-	poolName := specMap["template"].(map[string]interface{})["spec"].(map[string]interface{})["nodeTemplate"].(map[string]interface{})["metadata"].(map[string]interface{})["labels"].(map[string]interface{})["worker.gardener.cloud/pool"].(string)
-	//TODO zone has different labels for each provider
-	//zone := specMap["template"].(map[string]interface{})["spec"].(map[string]interface{})["nodeTemplate"].(map[string]interface{})["metadata"].(map[string]interface{})["labels"].(map[string]interface{})["worker.gardener.cloud/zone"].(string)
-	return VirtualNodeGroup{
-		Name:       name,
-		poolName:   poolName,
-		zone:       "zone",
-		targetSize: int(replicas),
-		minSize:    0,
-		maxSize:    0,
+	namespace := metadataMap["namespace"].(string)
+	poolName := specMap["template"].(map[string]any)["spec"].(map[string]any)["nodeTemplate"].(map[string]any)["metadata"].(map[string]any)["labels"].(map[string]any)["worker.gardener.cloud/pool"].(string)
+	zone := GetZone(specMap["template"].(map[string]any)["spec"].(map[string]any)["nodeTemplate"].(map[string]any)["metadata"].(map[string]any)["labels"].(map[string]any))
+	return gct.NodeGroupInfo{
+		Name:       fmt.Sprintf("%s.%s", namespace, name),
+		PoolName:   poolName,
+		Zone:       zone,
+		TargetSize: replicas,
+		MinSize:    0,
+		MaxSize:    0,
 	}
 }
 
-func getVirtualNodeGroupsFromMCD(mcdData map[string]interface{}) map[string]VirtualNodeGroup {
-	mcdList := mcdData["items"].([]interface{})
-	var nodeGroups []VirtualNodeGroup
+func getNodeGroupsFromMCD(mcdData map[string]any) map[string]gct.NodeGroupInfo {
+	mcdList := mcdData["items"].([]any)
+	var nodeGroups []gct.NodeGroupInfo
 	for _, mcd := range mcdList {
-		nodeGroups = append(nodeGroups, getVirtualNodeGroupFromMCD(mcd.(map[string]interface{})))
+		nodeGroups = append(nodeGroups, getVirtualNodeGroupFromMCD(mcd.(map[string]any)))
 	}
-	return lo.KeyBy(nodeGroups, func(item VirtualNodeGroup) string {
+	return lo.KeyBy(nodeGroups, func(item gct.NodeGroupInfo) string {
 		return item.Name
 	})
 }
 
-func readInitClusterInfo(clusterInfoPath string, shootName string) (cI clusterInfo, err error) {
-	shootJsonFile := fmt.Sprintf("%s/%s.json", clusterInfoPath, shootName)
-	data, err := os.ReadFile(shootJsonFile)
+func parseCASettingsInfo(caDeploymentData map[string]any) (caSettings gct.CASettingsInfo, err error) {
+	caSettings.NodeGroupsMinMax = make(map[string]gct.NameMinMax)
+	containersVal, err := GetInnerMapValue(caDeploymentData, "spec", "template", "spec", "containers")
+	if err != nil {
+		return
+	}
+	containers := containersVal.([]any)
+	if len(containers) == 0 {
+		err = fmt.Errorf("len of containers is zero, no CA container found")
+		return
+	}
+	caContainer := containers[0].(map[string]any)
+	caCommands := caContainer["command"].([]any)
+	for _, commandVal := range caCommands {
+		command := commandVal.(string)
+		vals := strings.Split(command, "=")
+		if len(vals) <= 1 {
+			continue
+		}
+		key := vals[0]
+		val := vals[1]
+		switch key {
+		case "--max-graceful-termination-sec":
+			caSettings.MaxGracefulTerminationSeconds, err = strconv.Atoi(val)
+		case "--max-node-provision-time":
+			caSettings.MaxNodeProvisionTime, err = time.ParseDuration(val)
+		case "--scan-interval":
+			caSettings.ScanInterval, err = time.ParseDuration(val)
+		case "--max-empty-bulk-delete":
+			caSettings.MaxEmptyBulkDelete, err = strconv.Atoi(val)
+		case "--new-pod-scale-up-delay":
+			caSettings.NewPodScaleUpDelay, err = time.ParseDuration(val)
+		case "--nodes":
+			var ngMinMax gct.NameMinMax
+			ngVals := strings.Split(val, ":")
+			ngMinMax.Min, err = strconv.Atoi(ngVals[0])
+			ngMinMax.Max, err = strconv.Atoi(ngVals[1])
+			ngMinMax.Name = ngVals[2]
+			caSettings.NodeGroupsMinMax[ngMinMax.Name] = ngMinMax
+		}
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
+func readInitClusterInfo(clusterInfoPath string) (cI ClusterInfo, err error) {
+	workerJsonFile := fmt.Sprintf("%s/shoot-worker.json", clusterInfoPath)
+	data, err := os.ReadFile(workerJsonFile)
 	if err != nil {
 		klog.Errorf("cannot read the shoot json file: %s", err.Error())
 		return
 	}
 
-	var shootDataMap map[string]interface{}
-	err = json.Unmarshal(data, &shootDataMap)
+	var workerDataMap map[string]any
+	err = json.Unmarshal(data, &workerDataMap)
 	if err != nil {
-		klog.Errorf("cannot unmarshal the shoot json: %s", err.Error())
+		klog.Errorf("cannot unmarshal the worker json: %s", err.Error())
 		return
 	}
-	workerPools := getVirtualWorkerPoolsFromShoot(shootDataMap)
-	cI.workerPools = workerPools
+	workerPools, err := getWorkerPoolsFromShootWorker(workerDataMap)
+	if err != nil {
+		klog.Errorf("cannot parse the worker pools: %s", err.Error())
+		return
+	}
+	cI.WorkerPools = workerPools
 
-	mccJsonFile := fmt.Sprintf("%s/%s-mcc.json", clusterInfoPath, shootName)
+	mccJsonFile := fmt.Sprintf("%s/mcc.json", clusterInfoPath)
 	data, err = os.ReadFile(mccJsonFile)
 	if err != nil {
 		klog.Errorf("cannot read the mcc json file: %s", err.Error())
 		return
 	}
-	var mccData map[string]interface{}
+	var mccData map[string]any
 	err = json.Unmarshal(data, &mccData)
 	if err != nil {
 		klog.Errorf("cannot unmarshal the mcc json: %s", err.Error())
 		return
 	}
-	cI.nodeTemplates = getVirtualNodeTemplatesFromMCC(mccData)
+	cI.NodeTemplates, err = getNodeTemplatesFromMCC(mccData)
+	if err != nil {
+		klog.Errorf("cannot build the nodeTemplates: %s", err.Error())
+	}
 
-	mcdJsonFile := fmt.Sprintf("%s/%s-mcd.json", clusterInfoPath, shootName)
+	mcdJsonFile := fmt.Sprintf("%s/mcd.json", clusterInfoPath)
 	data, err = os.ReadFile(mcdJsonFile)
 	if err != nil {
 		klog.Errorf("cannot read the mcd json file: %s", err.Error())
 		return
 	}
-	var mcdData map[string]interface{}
+	var mcdData map[string]any
 	err = json.Unmarshal(data, &mcdData)
 	if err != nil {
 		klog.Errorf("cannot unmarshal the mcd json: %s", err.Error())
 		return
 	}
-	cI.nodeGroups = getVirtualNodeGroupsFromMCD(mcdData)
+
+	cI.NodeGroups = getNodeGroupsFromMCD(mcdData)
+
+	caDeploymentJsonFile := fmt.Sprintf("%s/ca-deployment.json", clusterInfoPath)
+	data, err = os.ReadFile(caDeploymentJsonFile)
+	if err != nil {
+		klog.Errorf("cannot read the ca-deployment json file: %s", err.Error())
+		return
+	}
+	var caDeploymentData map[string]any
+	err = json.Unmarshal(data, &caDeploymentData)
+	cI.CASettings, err = parseCASettingsInfo(caDeploymentData)
+	if err != nil {
+		klog.Errorf("cannot parse the ca settings from deployment json: %s", err.Error())
+		return
+	}
+	err = cI.Init()
 	return
+}
+
+func populateNodeTemplates(nodeGroups map[string]*VirtualNodeGroup, nodeTemplates map[string]gct.NodeTemplate) error {
+	for name, template := range nodeTemplates {
+		ng, ok := nodeGroups[name]
+		if !ok {
+			return fmt.Errorf("nodegroup name not found: %s", name)
+		}
+		ng.nodeTemplate = template
+		nodeGroups[name] = ng
+	}
+	return nil
 }
 
 func (v *VirtualCloudProvider) Name() string {
@@ -259,9 +393,11 @@ func (v *VirtualCloudProvider) Name() string {
 }
 
 func (v *VirtualCloudProvider) NodeGroups() []cloudprovider.NodeGroup {
-	result := make([]cloudprovider.NodeGroup, len(v.clusterInfo.nodeGroups))
-	for _, ng := range v.clusterInfo.nodeGroups {
-		result = append(result, &ng)
+	result := make([]cloudprovider.NodeGroup, len(v.clusterInfo.NodeGroups))
+	counter := 0
+	for _, ng := range v.virtualNodeGroups {
+		result[counter] = ng
+		counter++
 	}
 	return result
 }
@@ -314,20 +450,42 @@ func (v *VirtualCloudProvider) Refresh() error {
 var _ cloudprovider.CloudProvider = (*VirtualCloudProvider)(nil)
 
 func (v *VirtualNodeGroup) MaxSize() int {
-	return v.maxSize
+	return v.NodeGroupInfo.MaxSize
 }
 
 func (v *VirtualNodeGroup) MinSize() int {
-	return v.minSize
+	return v.NodeGroupInfo.MinSize
 }
 
 func (v *VirtualNodeGroup) TargetSize() (int, error) {
-	return v.targetSize, nil
+	return v.NodeGroupInfo.TargetSize, nil
+}
+
+func (v *VirtualNodeGroup) changeCreatingInstancesToRunning() {
+	for i, _ := range v.instances {
+		klog.Infof("changing the instace %s state from creating to running", v.instances[i].Id)
+		v.instances[i].Status.State = cloudprovider.InstanceRunning
+	}
 }
 
 func (v *VirtualNodeGroup) IncreaseSize(delta int) error {
-	//TODO implement me
-	panic("implement me")
+	//TODO add flags for simulating provider errors ex : ResourceExhaustion
+	for i := 0; i < delta; i++ {
+		node, err := v.buildCoreNodeFromTemplate()
+		if err != nil {
+			return err
+		}
+		v.instances = append(v.instances, cloudprovider.Instance{
+			Id: node.Name,
+			Status: &cloudprovider.InstanceStatus{
+				State:     cloudprovider.InstanceCreating,
+				ErrorInfo: nil,
+			},
+		})
+
+	}
+	time.AfterFunc(10*time.Second, v.changeCreatingInstancesToRunning)
+	return nil
 }
 
 func (v *VirtualNodeGroup) AtomicIncreaseSize(delta int) error {
@@ -353,36 +511,98 @@ func (v *VirtualNodeGroup) Debug() string {
 }
 
 func (v *VirtualNodeGroup) Nodes() ([]cloudprovider.Instance, error) {
-	//TODO implement me
-	panic("implement me")
+	return v.instances, nil
+}
+
+func buildGenericLabels(template *gct.NodeTemplate, nodeName string) map[string]string {
+	result := make(map[string]string)
+	// TODO: extract from MCM
+	result[kubeletapis.LabelArch] = cloudprovider.DefaultArch
+	result[corev1.LabelArchStable] = cloudprovider.DefaultArch
+
+	result[kubeletapis.LabelOS] = cloudprovider.DefaultOS
+	result[corev1.LabelOSStable] = cloudprovider.DefaultOS
+
+	result[corev1.LabelInstanceType] = template.InstanceType
+	result[corev1.LabelInstanceTypeStable] = template.InstanceType
+
+	result[corev1.LabelZoneRegion] = template.Region
+	result[corev1.LabelZoneRegionStable] = template.Region
+
+	result[corev1.LabelZoneFailureDomain] = template.Zone
+	result[corev1.LabelZoneFailureDomainStable] = template.Zone
+
+	result[corev1.LabelHostname] = nodeName
+	return result
+}
+
+func (v *VirtualNodeGroup) buildCoreNodeFromTemplate() (corev1.Node, error) {
+	node := corev1.Node{}
+	nodeName := fmt.Sprintf("%s-%d", v.Name, rand.Int63())
+
+	node.ObjectMeta = metav1.ObjectMeta{
+		Name:     nodeName,
+		SelfLink: fmt.Sprintf("/api/v1/nodes/%s", nodeName),
+		Labels:   map[string]string{},
+	}
+
+	node.Status = corev1.NodeStatus{
+		Capacity: corev1.ResourceList{},
+	}
+
+	node.Status.Capacity[corev1.ResourcePods] = resource.MustParse("110") //Fixme must take it dynamically from node object
+	node.Status.Capacity[corev1.ResourceCPU] = v.nodeTemplate.CPU
+	if v.nodeTemplate.GPU.Cmp(resource.MustParse("0")) != 0 {
+		node.Status.Capacity[gpu.ResourceNvidiaGPU] = v.nodeTemplate.GPU
+	}
+	node.Status.Capacity[corev1.ResourceMemory] = v.nodeTemplate.Memory
+	node.Status.Capacity[corev1.ResourceEphemeralStorage] = v.nodeTemplate.EphemeralStorage
+	// added most common hugepages sizes. This will help to consider the template node while finding similar node groups
+	node.Status.Capacity["hugepages-1Gi"] = *resource.NewQuantity(0, resource.DecimalSI)
+	node.Status.Capacity["hugepages-2Mi"] = *resource.NewQuantity(0, resource.DecimalSI)
+
+	node.Status.Allocatable = node.Status.Capacity
+
+	// NodeLabels
+	node.Labels = v.nodeTemplate.Tags
+	// GenericLabels
+	node.Labels = cloudprovider.JoinStringMaps(node.Labels, buildGenericLabels(&v.nodeTemplate, nodeName))
+
+	//TODO populate taints from mcd
+	//node.Spec.Taints = v.nodeTemplate.Taints
+
+	node.Status.Conditions = cloudprovider.BuildReadyConditions()
+	return node, nil
 }
 
 func (v *VirtualNodeGroup) TemplateNodeInfo() (*schedulerframework.NodeInfo, error) {
-	//TODO implement me
-	panic("implement me")
+	coreNode, err := v.buildCoreNodeFromTemplate()
+	if err != nil {
+		return nil, err
+	}
+	//TODO Discuss it
+	nodeInfo := schedulerframework.NewNodeInfo(cloudprovider.BuildKubeProxy(v.Name))
+	nodeInfo.SetNode(&coreNode)
+	return nodeInfo, nil
 }
 
 func (v *VirtualNodeGroup) Exist() bool {
-	//TODO implement me
-	panic("implement me")
+	return true
 }
 
 func (v *VirtualNodeGroup) Create() (cloudprovider.NodeGroup, error) {
-	//TODO implement me
-	panic("implement me")
+	return nil, cloudprovider.ErrAlreadyExist
 }
 
 func (v *VirtualNodeGroup) Delete() error {
-	//TODO implement me
-	panic("implement me")
+	return cloudprovider.ErrNotImplemented
 }
 
 func (v *VirtualNodeGroup) Autoprovisioned() bool {
-	//TODO implement me
-	panic("implement me")
+	return false
 }
 
 func (v *VirtualNodeGroup) GetOptions(defaults config.NodeGroupAutoscalingOptions) (*config.NodeGroupAutoscalingOptions, error) {
-	//TODO implement me
-	panic("implement me")
+	//TODO copy from mcm get options
+	return &defaults, nil
 }
