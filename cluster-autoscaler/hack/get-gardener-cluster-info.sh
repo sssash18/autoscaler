@@ -43,19 +43,17 @@ function main(){
     exit 1
   fi
 
-  gardenctl target --garden sap-landscape-$LANDSCAPE
-
-  eval $(gardenctl kubectl-env bash)
-
-  kubectl get shoot -n garden-$PROJECT $SHOOT -ojson > $SAVE_PATH/$SHOOT.json
-
   gardenctl target --garden sap-landscape-$LANDSCAPE --project $PROJECT --shoot $SHOOT --control-plane
 
   eval $(gardenctl kubectl-env bash)
 
-  kubectl get mcc -ojson > $SAVE_PATH/$SHOOT-mcc.json
+  kubectl get worker $SHOOT -ojson > $SAVE_PATH/shoot-worker.json
 
-  kubectl get mcd -ojson > $SAVE_PATH/$SHOOT-mcd.json
+  kubectl get mcc -ojson > $SAVE_PATH/mcc.json
+
+  kubectl get mcd -ojson > $SAVE_PATH/mcd.json
+
+  kubectl get deploy cluster-autoscaler -ojson > $SAVE_PATH/ca-deployment.json
 
   gardenctl target unset garden
 }
