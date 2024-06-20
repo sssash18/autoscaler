@@ -38,7 +38,7 @@ var _ cloudprovider.NodeGroup = (*VirtualNodeGroup)(nil)
 const GPULabel = "virtual/gpu"
 
 type VirtualCloudProvider struct {
-	clusterInfo       *ClusterInfo
+	clusterInfo       *gct.ClusterInfo
 	resourceLimiter   *cloudprovider.ResourceLimiter
 	clientSet         *kubernetes.Clientset
 	virtualNodeGroups map[string]*VirtualNodeGroup
@@ -122,11 +122,11 @@ func getWorkerPoolInfo(workerPool map[string]any) (wP gct.WorkerPoolInfo, err er
 	machineType := workerPool["machineType"].(string)
 	minimum := workerPool["minimum"].(int64)
 	maximum := workerPool["maximum"].(int64)
-	maxSurge, err := AsIntOrString(workerPool["maxSurge"])
+	maxSurge, err := gct.AsIntOrString(workerPool["maxSurge"])
 	if err != nil {
 		return
 	}
-	maxUnavailable, err := AsIntOrString(workerPool["maxUnavailable"])
+	maxUnavailable, err := gct.AsIntOrString(workerPool["maxUnavailable"])
 	if err != nil {
 		return
 	}
@@ -237,7 +237,7 @@ func getVirtualNodeGroupFromMCD(mcd map[string]any) gct.NodeGroupInfo {
 	name := metadataMap["name"].(string)
 	namespace := metadataMap["namespace"].(string)
 	poolName := specMap["template"].(map[string]any)["spec"].(map[string]any)["nodeTemplate"].(map[string]any)["metadata"].(map[string]any)["labels"].(map[string]any)["worker.gardener.cloud/pool"].(string)
-	zone := GetZone(specMap["template"].(map[string]any)["spec"].(map[string]any)["nodeTemplate"].(map[string]any)["metadata"].(map[string]any)["labels"].(map[string]any))
+	zone := gct.GetZone(specMap["template"].(map[string]any)["spec"].(map[string]any)["nodeTemplate"].(map[string]any)["metadata"].(map[string]any)["labels"].(map[string]any))
 	return gct.NodeGroupInfo{
 		Name:       fmt.Sprintf("%s.%s", namespace, name),
 		PoolName:   poolName,
@@ -261,7 +261,7 @@ func getNodeGroupsFromMCD(mcdData map[string]any) map[string]gct.NodeGroupInfo {
 
 func parseCASettingsInfo(caDeploymentData map[string]any) (caSettings gct.CASettingsInfo, err error) {
 	caSettings.NodeGroupsMinMax = make(map[string]gct.NameMinMax)
-	containersVal, err := GetInnerMapValue(caDeploymentData, "spec", "template", "spec", "containers")
+	containersVal, err := gct.GetInnerMapValue(caDeploymentData, "spec", "template", "spec", "containers")
 	if err != nil {
 		return
 	}
@@ -306,7 +306,7 @@ func parseCASettingsInfo(caDeploymentData map[string]any) (caSettings gct.CASett
 	return
 }
 
-func readInitClusterInfo(clusterInfoPath string) (cI ClusterInfo, err error) {
+func readInitClusterInfo(clusterInfoPath string) (cI gct.ClusterInfo, err error) {
 	workerJsonFile := fmt.Sprintf("%s/shoot-worker.json", clusterInfoPath)
 	data, err := os.ReadFile(workerJsonFile)
 	if err != nil {
