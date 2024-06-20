@@ -228,6 +228,8 @@ github.com/elankath/gardener-cluster-types v0.0.0-20240619081651-e4cd1f72b100 h1
 github.com/elankath/gardener-cluster-types v0.0.0-20240619081651-e4cd1f72b100/go.mod h1:WVSsNNTeswaFBjGvFFzIpQHr/nXYGQr68fBij5G8ul0=
 github.com/elankath/gardener-cluster-types v0.0.0-20240619112724-d61c61384c3f h1:CsLNX6V9jbTiZ0cMu9E4SSfM0YrjeZQsva6025/S5aI=
 github.com/elankath/gardener-cluster-types v0.0.0-20240619112724-d61c61384c3f/go.mod h1:WOQGV0V7vAPDXLkN2jWYLr9Tx1X76chtbNYv1kCm/04=
+github.com/elankath/gardener-cluster-types v0.0.0-20240620045313-71047f21c285 h1:Ii3xH2m+VpXJgn8Qdc3B99pC6eDhctGvK6EXuPLVmH0=
+github.com/elankath/gardener-cluster-types v0.0.0-20240620045313-71047f21c285/go.mod h1:WOQGV0V7vAPDXLkN2jWYLr9Tx1X76chtbNYv1kCm/04=
 github.com/emicklei/go-restful/v3 v3.11.0 h1:rAQeMHw1c7zTmncogyy8VvRZwtkmkZ4FxERmMY4rD+g=
 github.com/emicklei/go-restful/v3 v3.11.0/go.mod h1:6n3XBCmQQb25CM2LCACGz8ukIrRry+4bhvbpWn3mrbc=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
