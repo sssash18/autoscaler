@@ -1,12 +1,15 @@
 package virtual
 
 import (
+	"cmp"
+	"context"
 	"fmt"
 	gct "github.com/elankath/gardener-cluster-types"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/json"
 	"k8s.io/autoscaler/cluster-autoscaler/cloudprovider"
@@ -18,9 +21,11 @@ import (
 	"k8s.io/klog/v2"
 	kubeletapis "k8s.io/kubelet/pkg/apis"
 	schedulerframework "k8s.io/kubernetes/pkg/scheduler/framework"
+	"maps"
 	"math/rand"
 	"os"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -28,14 +33,16 @@ import (
 
 type VirtualNodeGroup struct {
 	gct.NodeGroupInfo
-	nodeTemplate gct.NodeTemplate
-	instances    []cloudprovider.Instance
-	clientSet    *kubernetes.Clientset
+	nonNamespacedName string
+	nodeTemplate      gct.NodeTemplate
+	instances         []cloudprovider.Instance
+	clientSet         *kubernetes.Clientset
 }
 
 var _ cloudprovider.NodeGroup = (*VirtualNodeGroup)(nil)
 
 const GPULabel = "virtual/gpu"
+const NodeGroupLabel = "worker.gardener.cloud/nodegroup"
 
 type VirtualCloudProvider struct {
 	clusterInfo       *gct.ClusterInfo
@@ -58,6 +65,7 @@ func BuildVirtual(opts config.AutoscalingOptions, do cloudprovider.NodeGroupDisc
 	}
 
 	config.Burst = opts.KubeClientOpts.KubeClientBurst
+
 	config.QPS = opts.KubeClientOpts.KubeClientQPS
 	clientSet, err := kubernetes.NewForConfig(config)
 	if err != nil {
@@ -78,11 +86,17 @@ func BuildVirtual(opts config.AutoscalingOptions, do cloudprovider.NodeGroupDisc
 		}
 		virtualNodeGroups := make(map[string]*VirtualNodeGroup)
 		for name, ng := range clusterInfo.NodeGroups {
+			names := strings.Split(name, ".")
+			if len(names) <= 1 {
+				klog.Fatalf("cannot split nodegroup name by '.' seperator for %s", name)
+				return nil
+			}
 			virtualNodeGroup := VirtualNodeGroup{
-				NodeGroupInfo: ng,
-				nodeTemplate:  gct.NodeTemplate{},
-				instances:     nil,
-				clientSet:     clientSet,
+				NodeGroupInfo:     ng,
+				nonNamespacedName: names[1],
+				nodeTemplate:      gct.NodeTemplate{},
+				instances:         nil,
+				clientSet:         clientSet,
 			}
 			//populateNodeTemplateTaints(nodeTemplates,mcdData)
 			virtualNodeGroups[name] = &virtualNodeGroup
@@ -162,7 +176,7 @@ func getWorkerPoolsFromShootWorker(workerDataMap map[string]any) (virtualWorkerP
 
 func getVirtualNodeTemplateFromMCC(mcc map[string]any) (nt gct.NodeTemplate, err error) {
 	nodeTemplate := mcc["nodeTemplate"].(map[string]any)
-	providerSpec := mcc["providerSpec"].(map[string]any)
+	//providerSpec := mcc["providerSpec"].(map[string]any)
 	metadata := mcc["metadata"].(map[string]any)
 	cpuVal := nodeTemplate["capacity"].(map[string]any)["cpu"].(string)
 	gpuVal := nodeTemplate["capacity"].(map[string]any)["gpu"].(string)
@@ -170,13 +184,13 @@ func getVirtualNodeTemplateFromMCC(mcc map[string]any) (nt gct.NodeTemplate, err
 	instanceType := nodeTemplate["instanceType"].(string)
 	region := nodeTemplate["region"].(string)
 	zone := nodeTemplate["zone"].(string)
-	tags := providerSpec["tags"].(map[string]any)
+	//tags := providerSpec["tags"].(map[string]any)
 	name := metadata["name"].(string)
 
-	tagsStrMap := make(map[string]string)
-	for tagKey, tagVal := range tags {
-		tagsStrMap[tagKey] = tagVal.(string)
-	}
+	//tagsStrMap := make(map[string]string)
+	//for tagKey, tagVal := range tags {
+	//	tagsStrMap[tagKey] = tagVal.(string)
+	//}
 
 	cpu, err := resource.ParseQuantity(cpuVal)
 	if err != nil {
@@ -199,7 +213,7 @@ func getVirtualNodeTemplateFromMCC(mcc map[string]any) (nt gct.NodeTemplate, err
 		InstanceType: instanceType,
 		Region:       region,
 		Zone:         zone,
-		Tags:         tagsStrMap,
+		//Tags:         tagsStrMap,
 	}
 	return
 }
@@ -224,35 +238,23 @@ func getNodeTemplatesFromMCC(mccData map[string]any) (map[string]gct.NodeTemplat
 	}), nil
 }
 
-func getVirtualNodeGroupFromMCD(mcd map[string]any) gct.NodeGroupInfo {
-	specMap := mcd["spec"].(map[string]any)
-	metadataMap := mcd["metadata"].(map[string]any)
-	replicasVal, ok := specMap["replicas"]
-	var replicas int
-	if !ok {
-		replicas = 0
-	} else {
-		replicas = int(replicasVal.(float64))
-	}
-	name := metadataMap["name"].(string)
-	namespace := metadataMap["namespace"].(string)
-	poolName := specMap["template"].(map[string]any)["spec"].(map[string]any)["nodeTemplate"].(map[string]any)["metadata"].(map[string]any)["labels"].(map[string]any)["worker.gardener.cloud/pool"].(string)
-	zone := gct.GetZone(specMap["template"].(map[string]any)["spec"].(map[string]any)["nodeTemplate"].(map[string]any)["metadata"].(map[string]any)["labels"].(map[string]any))
+func getNodeGroupFromMCD(mcd gct.MachineDeploymentInfo) gct.NodeGroupInfo {
+	name := mcd.Name
+	namespace := mcd.Namespace
 	return gct.NodeGroupInfo{
 		Name:       fmt.Sprintf("%s.%s", namespace, name),
-		PoolName:   poolName,
-		Zone:       zone,
-		TargetSize: replicas,
+		PoolName:   mcd.PoolName,
+		Zone:       mcd.Zone,
+		TargetSize: mcd.Replicas,
 		MinSize:    0,
 		MaxSize:    0,
 	}
 }
 
-func getNodeGroupsFromMCD(mcdData map[string]any) map[string]gct.NodeGroupInfo {
-	mcdList := mcdData["items"].([]any)
+func mapToNodeGroups(mcds []gct.MachineDeploymentInfo) map[string]gct.NodeGroupInfo {
 	var nodeGroups []gct.NodeGroupInfo
-	for _, mcd := range mcdList {
-		nodeGroups = append(nodeGroups, getVirtualNodeGroupFromMCD(mcd.(map[string]any)))
+	for _, mcd := range mcds {
+		nodeGroups = append(nodeGroups, getNodeGroupFromMCD(mcd))
 	}
 	return lo.KeyBy(nodeGroups, func(item gct.NodeGroupInfo) string {
 		return item.Name
@@ -327,8 +329,8 @@ func readInitClusterInfo(clusterInfoPath string) (cI gct.ClusterInfo, err error)
 	}
 	cI.WorkerPools = workerPools
 
-	mccJsonFile := fmt.Sprintf("%s/mcc.json", clusterInfoPath)
-	data, err = os.ReadFile(mccJsonFile)
+	machineClassesJsonPath := fmt.Sprintf("%s/machine-classes.json", clusterInfoPath)
+	data, err = os.ReadFile(machineClassesJsonPath)
 	if err != nil {
 		klog.Errorf("cannot read the mcc json file: %s", err.Error())
 		return
@@ -344,20 +346,21 @@ func readInitClusterInfo(clusterInfoPath string) (cI gct.ClusterInfo, err error)
 		klog.Errorf("cannot build the nodeTemplates: %s", err.Error())
 	}
 
-	mcdJsonFile := fmt.Sprintf("%s/mcd.json", clusterInfoPath)
-	data, err = os.ReadFile(mcdJsonFile)
+	//mcdJsonFile := fmt.Sprintf("%s/mcds.json", clusterInfoPath)
+	//_, err = os.ReadFile(mcdJsonFile)
+	//if err != nil {
+	//	klog.Errorf("cannot read the mcd json file: %s", err.Error())
+	//	return
+	//}
+	machineDeploymentsJsonPath := fmt.Sprintf("%s/machine-deployments.json", clusterInfoPath)
+	machineDeployments, err := readMachineDeploymentInfos(machineDeploymentsJsonPath)
 	if err != nil {
-		klog.Errorf("cannot read the mcd json file: %s", err.Error())
-		return
-	}
-	var mcdData map[string]any
-	err = json.Unmarshal(data, &mcdData)
-	if err != nil {
-		klog.Errorf("cannot unmarshal the mcd json: %s", err.Error())
+		klog.Errorf("readMachineDeploymentInfos error: %s", err.Error())
 		return
 	}
 
-	cI.NodeGroups = getNodeGroupsFromMCD(mcdData)
+	populateNodeTemplatesFromMCD(machineDeployments, cI.NodeTemplates)
+	cI.NodeGroups = mapToNodeGroups(machineDeployments)
 
 	caDeploymentJsonFile := fmt.Sprintf("%s/ca-deployment.json", clusterInfoPath)
 	data, err = os.ReadFile(caDeploymentJsonFile)
@@ -374,6 +377,16 @@ func readInitClusterInfo(clusterInfoPath string) (cI gct.ClusterInfo, err error)
 	}
 	err = cI.Init()
 	return
+}
+
+func populateNodeTemplatesFromMCD(mcds []gct.MachineDeploymentInfo, nodeTemplates map[string]gct.NodeTemplate) {
+	for _, mcd := range mcds {
+		templateName := fmt.Sprintf("%s.%s", mcd.Namespace, mcd.Name)
+		nodeTemplate := nodeTemplates[templateName]
+		nodeTemplate.Labels = mcd.Labels
+		nodeTemplate.Taints = mcd.Taints
+		nodeTemplates[templateName] = nodeTemplate
+	}
 }
 
 func populateNodeTemplates(nodeGroups map[string]*VirtualNodeGroup, nodeTemplates map[string]gct.NodeTemplate) error {
@@ -403,8 +416,16 @@ func (v *VirtualCloudProvider) NodeGroups() []cloudprovider.NodeGroup {
 }
 
 func (v *VirtualCloudProvider) NodeGroupForNode(node *corev1.Node) (cloudprovider.NodeGroup, error) {
-	//TODO implement me
-	panic("implement me")
+	ngName, ok := node.Labels[NodeGroupLabel]
+	if !ok {
+		return nil, fmt.Errorf("cant find %q label on node %q", NodeGroupLabel, node.Name)
+	}
+	for _, virtualNodeGroup := range v.virtualNodeGroups {
+		if virtualNodeGroup.nonNamespacedName == ngName {
+			return virtualNodeGroup, nil
+		}
+	}
+	return nil, fmt.Errorf("cant find VirtualNodeGroup with name %q", ngName)
 }
 
 func (v *VirtualCloudProvider) HasInstance(node *corev1.Node) (bool, error) {
@@ -444,6 +465,33 @@ func (v *VirtualCloudProvider) Cleanup() error {
 }
 
 func (v *VirtualCloudProvider) Refresh() error {
+	nodes, err := v.clientSet.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	nodesByNodeGroup := lo.GroupBy(nodes.Items, func(node corev1.Node) string {
+		return node.Labels[NodeGroupLabel]
+	})
+	for _, nodeGroup := range v.virtualNodeGroups {
+		expectedSize := nodeGroup.NodeGroupInfo.TargetSize
+		currentSize := len(nodesByNodeGroup[nodeGroup.nonNamespacedName])
+		delta := expectedSize - currentSize
+		if delta > 0 {
+			klog.Infof("add %d extra nodes in nodegroup %s", delta, nodeGroup.nonNamespacedName)
+			err = nodeGroup.IncreaseSize(delta)
+			if err != nil {
+				return err
+			}
+		} else {
+			klog.Infof("delete %d extra nodes in nodegroup %s", -delta, nodeGroup.nonNamespacedName)
+			err = nodeGroup.DecreaseTargetSize(-delta)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// Refresh
 	return nil
 }
 
@@ -461,14 +509,30 @@ func (v *VirtualNodeGroup) TargetSize() (int, error) {
 	return v.NodeGroupInfo.TargetSize, nil
 }
 
-func (v *VirtualNodeGroup) changeCreatingInstancesToRunning() {
+func (v *VirtualNodeGroup) changeCreatingInstancesToRunning(ctx context.Context) {
 	for i, _ := range v.instances {
 		klog.Infof("changing the instace %s state from creating to running", v.instances[i].Id)
 		v.instances[i].Status.State = cloudprovider.InstanceRunning
+		nodeName := v.instances[i].Id
+		node, err := v.clientSet.CoreV1().Nodes().Get(ctx, nodeName, metav1.GetOptions{})
+		if err != nil {
+			klog.Errorf("cannot get the node object for the corresponding instance: %s", nodeName)
+			return
+		}
+		node.Spec.Taints = slices.DeleteFunc(node.Spec.Taints, func(taint corev1.Taint) bool {
+			return taint.Key == "node.kubernetes.io/not-ready"
+		})
+		updatedNode, err := v.clientSet.CoreV1().Nodes().Update(ctx, node, metav1.UpdateOptions{})
+		if err != nil {
+			klog.Errorf("cannot update the node for corresponding instance: %s", nodeName)
+			return
+		}
+		klog.Infof("removed the not ready taint from node: %s", updatedNode.Name)
 	}
 }
 
 func (v *VirtualNodeGroup) IncreaseSize(delta int) error {
+	ctx := context.Background()
 	//TODO add flags for simulating provider errors ex : ResourceExhaustion
 	for i := 0; i < delta; i++ {
 		node, err := v.buildCoreNodeFromTemplate()
@@ -482,9 +546,13 @@ func (v *VirtualNodeGroup) IncreaseSize(delta int) error {
 				ErrorInfo: nil,
 			},
 		})
-
+		createdNode, err := v.clientSet.CoreV1().Nodes().Create(ctx, &node, metav1.CreateOptions{})
+		if err != nil {
+			return err
+		}
+		klog.Infof("created a new node with name: %s", createdNode.Name)
 	}
-	time.AfterFunc(10*time.Second, v.changeCreatingInstancesToRunning)
+	time.AfterFunc(10*time.Second, func() { v.changeCreatingInstancesToRunning(ctx) })
 	return nil
 }
 
@@ -493,13 +561,37 @@ func (v *VirtualNodeGroup) AtomicIncreaseSize(delta int) error {
 }
 
 func (v *VirtualNodeGroup) DeleteNodes(nodes []*corev1.Node) error {
-	//TODO implement me
-	panic("implement me")
+	ctx := context.Background()
+	for _, node := range nodes {
+		err := v.clientSet.CoreV1().Nodes().Delete(ctx, node.Name, metav1.DeleteOptions{})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (v *VirtualNodeGroup) DecreaseTargetSize(delta int) error {
-	//TODO implement me
-	panic("implement me")
+	ctx := context.Background()
+	nodes, err := v.clientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	if delta > len(nodes.Items) {
+		return fmt.Errorf("nodes to be deleted are greater than current number of nodes.")
+	}
+	pods, err := v.clientSet.CoreV1().Pods("").List(ctx, metav1.ListOptions{})
+	podsToNodesMap := lo.GroupBy(pods.Items, func(pod corev1.Pod) string {
+		return pod.Spec.NodeName
+	})
+	var deleteNodes []*corev1.Node
+	slices.SortFunc(nodes.Items, func(a, b corev1.Node) int {
+		return cmp.Compare(len(podsToNodesMap[a.Name]), len(podsToNodesMap[b.Name]))
+	})
+	for i := 0; i < delta; i++ {
+		deleteNodes = append(deleteNodes, &nodes.Items[i])
+	}
+	return v.DeleteNodes(deleteNodes)
 }
 
 func (v *VirtualNodeGroup) Id() string {
@@ -532,13 +624,14 @@ func buildGenericLabels(template *gct.NodeTemplate, nodeName string) map[string]
 	result[corev1.LabelZoneFailureDomain] = template.Zone
 	result[corev1.LabelZoneFailureDomainStable] = template.Zone
 
+	//TODO fix node name label to satisfy validation
 	result[corev1.LabelHostname] = nodeName
 	return result
 }
 
 func (v *VirtualNodeGroup) buildCoreNodeFromTemplate() (corev1.Node, error) {
 	node := corev1.Node{}
-	nodeName := fmt.Sprintf("%s-%d", v.Name, rand.Int63())
+	nodeName := fmt.Sprintf("%s-%d", v.nonNamespacedName, rand.Int63())
 
 	node.ObjectMeta = metav1.ObjectMeta{
 		Name:     nodeName,
@@ -564,12 +657,15 @@ func (v *VirtualNodeGroup) buildCoreNodeFromTemplate() (corev1.Node, error) {
 	node.Status.Allocatable = node.Status.Capacity
 
 	// NodeLabels
-	node.Labels = v.nodeTemplate.Tags
-	// GenericLabels
+	//TODO FIXME fix tags preventing node creation
+	//node.Labels = v.nodeTemplate.Tags
+	//// GenericLabels
 	node.Labels = cloudprovider.JoinStringMaps(node.Labels, buildGenericLabels(&v.nodeTemplate, nodeName))
+	maps.Copy(node.Labels, v.nodeTemplate.Labels)
+	node.Labels[NodeGroupLabel] = v.nonNamespacedName
 
 	//TODO populate taints from mcd
-	//node.Spec.Taints = v.nodeTemplate.Taints
+	node.Spec.Taints = v.nodeTemplate.Taints
 
 	node.Status.Conditions = cloudprovider.BuildReadyConditions()
 	return node, nil
@@ -605,4 +701,101 @@ func (v *VirtualNodeGroup) Autoprovisioned() bool {
 func (v *VirtualNodeGroup) GetOptions(defaults config.NodeGroupAutoscalingOptions) (*config.NodeGroupAutoscalingOptions, error) {
 	//TODO copy from mcm get options
 	return &defaults, nil
+}
+
+func readMachineDeploymentInfos(mcdsJsonFile string) ([]gct.MachineDeploymentInfo, error) {
+	bytes, err := os.ReadFile(mcdsJsonFile)
+	if err != nil {
+		return nil, err
+	}
+	var mcdData unstructured.Unstructured
+	err = json.Unmarshal(bytes, &mcdData)
+	if err != nil {
+		klog.Errorf("cannot unmarshal the mcd json: %s", err.Error())
+		return nil, err
+	}
+	items := mcdData.UnstructuredContent()["items"].([]any)
+	mcdInfos := make([]gct.MachineDeploymentInfo, len(items))
+	for i, item := range items {
+		itemMap := item.(map[string]any)
+		itemObj := unstructured.Unstructured{Object: itemMap}
+		//medataDataMap, found, err := itemObjunstructured.NestedMap(itemMap, "metadata")
+		name := itemObj.GetName()
+		namespace := itemObj.GetNamespace()
+		specMap, found, err := unstructured.NestedMap(itemObj.UnstructuredContent(), "spec")
+		if !found {
+			return nil, fmt.Errorf("cannot find 'spec' inside machine deployment json with idx %d", i)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("error loading spec map inside machine deployment json with idx %d: %w", i, err)
+		}
+		var replicas int
+		replicasVal, ok := specMap["replicas"]
+		if ok {
+			replicas = int(replicasVal.(int64))
+		}
+		nodeTemplate, found, err := unstructured.NestedMap(specMap, "template", "spec", "nodeTemplate")
+		if !found {
+			return nil, fmt.Errorf("cannot find nested nodeTemplate map inside machine deployment json with idx %d", i)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("error loading nested nodeTemplate map inside machine deployment json with idx %d: %w", i, err)
+		}
+		labels, found, err := unstructured.NestedStringMap(nodeTemplate, "metadata", "labels")
+		if !found {
+			return nil, fmt.Errorf("cannot find nested labels inside nodeTemplate belonging to machine deployment json with idx %d", i)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("error loading nested labels inside nodeTemplate belonging to machine deployment json with idx %d: %w", i, err)
+		}
+		labelsVal, found, err := unstructured.NestedMap(nodeTemplate, "metadata", "labels")
+		if !found {
+			return nil, fmt.Errorf("cannot find nested labels inside nodeTemplate belonging to machine deployment json with idx %d", i)
+		}
+		if err != nil {
+			return nil, fmt.Errorf("error loading nested labels inside nodeTemplate belonging to machine deployment json with idx %d: %w", i, err)
+		}
+		taintsVal, found, err := unstructured.NestedSlice(nodeTemplate, "spec", "taints")
+		if err != nil {
+			return nil, fmt.Errorf("error loading nested taints inside nodeTemplate.spec.taints belonging to machine deployment json with idx %d: %w", i, err)
+		}
+
+		var taints []corev1.Taint
+		if found {
+			for _, tv := range taintsVal {
+				tvMap := tv.(map[string]any)
+				taints = append(taints, corev1.Taint{
+					Key:       tvMap["key"].(string),
+					Value:     tvMap["value"].(string),
+					Effect:    corev1.TaintEffect(tvMap["effect"].(string)),
+					TimeAdded: nil,
+				})
+			}
+		}
+		klog.Infof("found taints inside  nodeTemplate belonging to machine deployment json with idx %d: %s", i, taintsVal)
+
+		class, found, err := unstructured.NestedStringMap(specMap, "template", "spec", "class")
+		if !found {
+			return nil, fmt.Errorf("cannot find nested class inside nodeTemplate belonging to machine deployment json with idx %d", i)
+		}
+		mcdInfo := gct.MachineDeploymentInfo{
+			SnapshotMeta: gct.SnapshotMeta{
+				CreationTimestamp: itemObj.GetCreationTimestamp().Time.UTC(),
+				SnapshotTimestamp: time.Now().UTC(),
+				Name:              name,
+				Namespace:         namespace,
+			},
+			Replicas:         replicas,
+			PoolName:         labels["worker.gardener.cloud/pool"],
+			Zone:             gct.GetZone(labelsVal),
+			MaxSurge:         intstr.IntOrString{},
+			MaxUnavailable:   intstr.IntOrString{},
+			MachineClassName: class["name"],
+			Labels:           labels,
+			Taints:           taints,
+			Hash:             "",
+		}
+		mcdInfos[i] = mcdInfo
+	}
+	return mcdInfos, nil
 }

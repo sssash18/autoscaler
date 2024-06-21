@@ -49,9 +49,9 @@ function main(){
 
   kubectl get worker $SHOOT -ojson > $SAVE_PATH/shoot-worker.json
 
-  kubectl get mcc -ojson > $SAVE_PATH/mcc.json
+  kubectl get mcc -ojson > $SAVE_PATH/machine-classes.json
 
-  kubectl get mcd -ojson > $SAVE_PATH/mcd.json
+  kubectl get mcd -ojson > $SAVE_PATH/machine-deployments.json
 
   kubectl get deploy cluster-autoscaler -ojson > $SAVE_PATH/ca-deployment.json
 
