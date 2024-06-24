@@ -281,5 +281,3 @@ replace k8s.io/kms => k8s.io/kms v0.30.0-alpha.3
 replace k8s.io/endpointslice => k8s.io/endpointslice v0.30.0-alpha.3
 
 replace k8s.io/autoscaler/cluster-autoscaler/apis => ./apis
-
-replace github.com/elankath/gardener-cluster-types => ../../gardener-cluster-types
