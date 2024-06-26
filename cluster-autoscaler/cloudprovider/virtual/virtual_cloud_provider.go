@@ -28,6 +28,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -45,10 +46,12 @@ const GPULabel = "virtual/gpu"
 const NodeGroupLabel = "worker.gardener.cloud/nodegroup"
 
 type VirtualCloudProvider struct {
-	clusterInfo       *gct.ClusterInfo
-	resourceLimiter   *cloudprovider.ResourceLimiter
-	clientSet         *kubernetes.Clientset
-	virtualNodeGroups map[string]*VirtualNodeGroup
+	config                 *gct.AutoScalerConfig
+	configPath             string
+	configLastModifiedTime time.Time
+	resourceLimiter        *cloudprovider.ResourceLimiter
+	clientSet              *kubernetes.Clientset
+	virtualNodeGroups      sync.Map
 }
 
 func BuildVirtual(opts config.AutoscalingOptions, do cloudprovider.NodeGroupDiscoveryOptions, rl *cloudprovider.ResourceLimiter) cloudprovider.CloudProvider {
@@ -73,48 +76,101 @@ func BuildVirtual(opts config.AutoscalingOptions, do cloudprovider.NodeGroupDisc
 	}
 
 	clusterInfoPath := os.Getenv("GARDENER_CLUSTER_INFO")
-	clusterHistoryPath := os.Getenv("GARDENER_CLUSTER_HISTORY")
-	if clusterHistoryPath == "" && clusterInfoPath == "" {
-		klog.Fatalf("cannot create virtual provider one of env var GARDENER_CLUSTER_INFO or GARDENER_CLUSTER_HISTORY needs to be set.")
-		return nil
-	}
-
-	if clusterInfoPath != "" {
-		clusterInfo, err := readInitClusterInfo(clusterInfoPath)
-		if err != nil {
-			klog.Fatalf("cannot build the virtual cloud provider: %s", err.Error())
-		}
-		virtualNodeGroups := make(map[string]*VirtualNodeGroup)
-		for name, ng := range clusterInfo.NodeGroups {
-			names := strings.Split(name, ".")
-			if len(names) <= 1 {
-				klog.Fatalf("cannot split nodegroup name by '.' seperator for %s", name)
-				return nil
-			}
-			virtualNodeGroup := VirtualNodeGroup{
-				NodeGroupInfo:     ng,
-				nonNamespacedName: names[1],
-				nodeTemplate:      gct.NodeTemplate{},
-				instances:         nil,
-				clientSet:         clientSet,
-			}
-			//populateNodeTemplateTaints(nodeTemplates,mcdData)
-			virtualNodeGroups[name] = &virtualNodeGroup
-		}
-		err = populateNodeTemplates(virtualNodeGroups, clusterInfo.NodeTemplates)
-		if err != nil {
-			klog.Fatalf("cannot construct the virtual cloud provider: %s", err.Error())
-		}
+	/*if clusterInfoPath == "" {
+		klog.Infof("no GARDENER_CLUSTER_INFO passed, operating in zero mode")
 		return &VirtualCloudProvider{
-			virtualNodeGroups: virtualNodeGroups,
-			clusterInfo:       &clusterInfo,
+			clusterInfo: &gct.AutoScalerConfig{
+				NodeTemplates: make(map[string]gct.NodeTemplate),
+				NodeGroups:    make(map[string]gct.NodeGroupInfo),
+				WorkerPools:   nil,
+			},
+			virtualNodeGroups: make(map[string]*VirtualNodeGroup),
 			resourceLimiter:   rl,
 			clientSet:         clientSet,
 		}
+	}*/
+
+	if clusterInfoPath != "" {
+		cloudProvider, err := InitializeFromGardenerCluster(clusterInfoPath, clientSet, rl)
+		if err != nil {
+			klog.Fatalf("cannot initialize virtual autoscaler from gardener cluster info: %s", err)
+			return nil
+		}
+		return cloudProvider
 	}
 
+	//TODO replace with configmap
+	virtualAutoscalerConfigPath := os.Getenv("VIRTUAL_AUTOSCALER_CONFIG")
+	if virtualAutoscalerConfigPath != "" {
+		cloudProvider, err := InitializeFromVirtualConfig(virtualAutoscalerConfigPath, clientSet, rl)
+		if err != nil {
+			klog.Fatalf("cannot initialize virtual autoscaler from virtual autoscaler config path: %s", err)
+			return nil
+		}
+		return cloudProvider
+	}
+
+	klog.Fatalf("no configuration neither GARDENER_CLUSTER_INFO nor VIRTUAL_AUTOSCALER_CONFIG is passed")
 	return nil
 
+}
+
+func AsSyncMap(mp map[string]*VirtualNodeGroup) (sMap sync.Map) {
+	for k, v := range mp {
+		sMap.Store(k, v)
+	}
+	return
+}
+
+func InitializeFromVirtualConfig(virtualAutoscalerConfigPath string, clientSet *kubernetes.Clientset, rl *cloudprovider.ResourceLimiter) (*VirtualCloudProvider, error) {
+	return &VirtualCloudProvider{
+		config: &gct.AutoScalerConfig{
+			NodeTemplates: make(map[string]gct.NodeTemplate),
+			NodeGroups:    make(map[string]gct.NodeGroupInfo),
+			WorkerPools:   nil,
+		},
+		configPath:      virtualAutoscalerConfigPath,
+		resourceLimiter: rl,
+		clientSet:       clientSet,
+	}, nil
+}
+
+func buildVirtualNodeGroups(clientSet *kubernetes.Clientset, clusterInfo *gct.AutoScalerConfig) (map[string]*VirtualNodeGroup, error) {
+	virtualNodeGroups := make(map[string]*VirtualNodeGroup)
+	for name, ng := range clusterInfo.NodeGroups {
+		names := strings.Split(name, ".")
+		if len(names) <= 1 {
+			return nil, fmt.Errorf("cannot split nodegroup name by '.' seperator for %s", name)
+		}
+		virtualNodeGroup := VirtualNodeGroup{
+			NodeGroupInfo:     ng,
+			nonNamespacedName: names[1],
+			nodeTemplate:      gct.NodeTemplate{},
+			instances:         nil,
+			clientSet:         clientSet,
+		}
+		//populateNodeTemplateTaints(nodeTemplates,mcdData)
+		virtualNodeGroups[name] = &virtualNodeGroup
+	}
+	err := populateNodeTemplates(virtualNodeGroups, clusterInfo.NodeTemplates)
+	if err != nil {
+		klog.Fatalf("cannot construct the virtual cloud provider: %s", err.Error())
+	}
+	return virtualNodeGroups, nil
+}
+
+func InitializeFromGardenerCluster(clusterInfoPath string, clientSet *kubernetes.Clientset, rl *cloudprovider.ResourceLimiter) (*VirtualCloudProvider, error) {
+	clusterInfo, err := readInitClusterInfo(clusterInfoPath)
+	if err != nil {
+		klog.Fatalf("cannot build the virtual cloud provider: %s", err.Error())
+	}
+	virtualNodeGroups, err := buildVirtualNodeGroups(clientSet, &clusterInfo)
+	return &VirtualCloudProvider{
+		virtualNodeGroups: AsSyncMap(virtualNodeGroups),
+		config:            &clusterInfo,
+		resourceLimiter:   rl,
+		clientSet:         clientSet,
+	}, nil
 }
 
 func getIntOrString(val any) intstr.IntOrString {
@@ -174,13 +230,43 @@ func getWorkerPoolsFromShootWorker(workerDataMap map[string]any) (virtualWorkerP
 	return
 }
 
+func ResourceListFromMap(input map[string]any) (corev1.ResourceList, error) {
+	resourceList := corev1.ResourceList{}
+
+	for key, value := range input {
+		// Convert the value to a string
+		strValue, ok := value.(string)
+		if !ok {
+			return nil, fmt.Errorf("value for key %s is not a string", key)
+		}
+
+		// Parse the string value into a Quantity
+		quantity, err := resource.ParseQuantity(strValue)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing quantity for key %s: %v", key, err)
+		}
+		quantity, err = gct.NormalizeQuantity(quantity)
+		if err != nil {
+			return nil, fmt.Errorf("cannot normalize quantity %q: %w", quantity, err)
+		}
+		// Assign the quantity to the ResourceList
+		resourceList[corev1.ResourceName(key)] = quantity
+	}
+
+	return resourceList, nil
+}
+
 func getVirtualNodeTemplateFromMCC(mcc map[string]any) (nt gct.NodeTemplate, err error) {
 	nodeTemplate := mcc["nodeTemplate"].(map[string]any)
 	//providerSpec := mcc["providerSpec"].(map[string]any)
 	metadata := mcc["metadata"].(map[string]any)
-	cpuVal := nodeTemplate["capacity"].(map[string]any)["cpu"].(string)
-	gpuVal := nodeTemplate["capacity"].(map[string]any)["gpu"].(string)
-	memoryVal := nodeTemplate["capacity"].(map[string]any)["memory"].(string)
+	capacity, err := ResourceListFromMap(nodeTemplate["capacity"].(map[string]any))
+	if err != nil {
+		return
+	}
+	//cpuVal := nodeTemplate["capacity"].(map[string]any)["cpu"].(string)
+	//gpuVal := nodeTemplate["capacity"].(map[string]any)["gpu"].(string)
+	//memoryVal := nodeTemplate["capacity"].(map[string]any)["memory"].(string)
 	instanceType := nodeTemplate["instanceType"].(string)
 	region := nodeTemplate["region"].(string)
 	zone := nodeTemplate["zone"].(string)
@@ -192,24 +278,25 @@ func getVirtualNodeTemplateFromMCC(mcc map[string]any) (nt gct.NodeTemplate, err
 	//	tagsStrMap[tagKey] = tagVal.(string)
 	//}
 
-	cpu, err := resource.ParseQuantity(cpuVal)
-	if err != nil {
-		return
-	}
-	gpu, err := resource.ParseQuantity(gpuVal)
-	if err != nil {
-		return
-	}
-	memory, err := resource.ParseQuantity(memoryVal)
-	if err != nil {
-		return
-	}
+	//cpu, err := resource.ParseQuantity(cpuVal)
+	//if err != nil {
+	//	return
+	//}
+	//gpu, err := resource.ParseQuantity(gpuVal)
+	//if err != nil {
+	//	return
+	//}
+	//memory, err := resource.ParseQuantity(memoryVal)
+	//if err != nil {
+	//	return
+	//}
 
 	nt = gct.NodeTemplate{
-		Name:         name,
-		CPU:          cpu,
-		GPU:          gpu,
-		Memory:       memory,
+		Name: name,
+		//CPU:          cpu,
+		//GPU:          gpu,
+		//Memory:       memory,
+		Capacity:     capacity,
 		InstanceType: instanceType,
 		Region:       region,
 		Zone:         zone,
@@ -262,7 +349,7 @@ func mapToNodeGroups(mcds []gct.MachineDeploymentInfo) map[string]gct.NodeGroupI
 }
 
 func parseCASettingsInfo(caDeploymentData map[string]any) (caSettings gct.CASettingsInfo, err error) {
-	caSettings.NodeGroupsMinMax = make(map[string]gct.NameMinMax)
+	caSettings.NodeGroupsMinMax = make(map[string]gct.MinMax)
 	containersVal, err := gct.GetInnerMapValue(caDeploymentData, "spec", "template", "spec", "containers")
 	if err != nil {
 		return
@@ -294,12 +381,11 @@ func parseCASettingsInfo(caDeploymentData map[string]any) (caSettings gct.CASett
 		case "--new-pod-scale-up-delay":
 			caSettings.NewPodScaleUpDelay, err = time.ParseDuration(val)
 		case "--nodes":
-			var ngMinMax gct.NameMinMax
+			var ngMinMax gct.MinMax
 			ngVals := strings.Split(val, ":")
 			ngMinMax.Min, err = strconv.Atoi(ngVals[0])
 			ngMinMax.Max, err = strconv.Atoi(ngVals[1])
-			ngMinMax.Name = ngVals[2]
-			caSettings.NodeGroupsMinMax[ngMinMax.Name] = ngMinMax
+			caSettings.NodeGroupsMinMax[ngVals[2]] = ngMinMax
 		}
 		if err != nil {
 			return
@@ -308,7 +394,7 @@ func parseCASettingsInfo(caDeploymentData map[string]any) (caSettings gct.CASett
 	return
 }
 
-func readInitClusterInfo(clusterInfoPath string) (cI gct.ClusterInfo, err error) {
+func readInitClusterInfo(clusterInfoPath string) (cI gct.AutoScalerConfig, err error) {
 	workerJsonFile := fmt.Sprintf("%s/shoot-worker.json", clusterInfoPath)
 	data, err := os.ReadFile(workerJsonFile)
 	if err != nil {
@@ -406,12 +492,13 @@ func (v *VirtualCloudProvider) Name() string {
 }
 
 func (v *VirtualCloudProvider) NodeGroups() []cloudprovider.NodeGroup {
-	result := make([]cloudprovider.NodeGroup, len(v.clusterInfo.NodeGroups))
+	result := make([]cloudprovider.NodeGroup, len(v.config.NodeGroups))
 	counter := 0
-	for _, ng := range v.virtualNodeGroups {
-		result[counter] = ng
+	v.virtualNodeGroups.Range(func(key, value any) bool {
+		result[counter] = value.(*VirtualNodeGroup)
 		counter++
-	}
+		return true
+	})
 	return result
 }
 
@@ -420,10 +507,17 @@ func (v *VirtualCloudProvider) NodeGroupForNode(node *corev1.Node) (cloudprovide
 	if !ok {
 		return nil, fmt.Errorf("cant find %q label on node %q", NodeGroupLabel, node.Name)
 	}
-	for _, virtualNodeGroup := range v.virtualNodeGroups {
-		if virtualNodeGroup.nonNamespacedName == ngName {
-			return virtualNodeGroup, nil
+	var virtualNodeGroup *VirtualNodeGroup
+	v.virtualNodeGroups.Range(func(key, value any) bool {
+		vng := value.(*VirtualNodeGroup)
+		if vng.nonNamespacedName == ngName {
+			virtualNodeGroup = vng
+			return false
 		}
+		return true
+	})
+	if virtualNodeGroup != nil {
+		return virtualNodeGroup, nil
 	}
 	return nil, fmt.Errorf("cant find VirtualNodeGroup with name %q", ngName)
 }
@@ -464,7 +558,61 @@ func (v *VirtualCloudProvider) Cleanup() error {
 	return nil
 }
 
-func (v *VirtualCloudProvider) Refresh() error {
+func checkAndGetFileLastModifiedTime(filePath string) (exist bool, lastModifiedTime time.Time, err error) {
+	file, err := os.Stat(filePath)
+	if err != nil {
+		return
+	}
+	exist = true
+	lastModifiedTime = file.ModTime().UTC()
+	return
+}
+
+func loadAutoScalerConfig(filePath string) (config *gct.AutoScalerConfig, err error) {
+	bytes, err := os.ReadFile(filePath)
+	if err != nil {
+		return
+	}
+
+	err = json.Unmarshal(bytes, config)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (v *VirtualCloudProvider) refreshConfig() (bool, error) {
+	exist, lastModifiedTime, err := checkAndGetFileLastModifiedTime(v.configPath)
+	if err != nil {
+		return false, fmt.Errorf("error looking up the virtual autoscaler autoScalerConfig at path: %s, error: %s", v.configPath, err)
+	}
+	if !exist {
+		klog.Warningf("virtual autoscaler autoScalerConfig is still missing at path: %s", v.configPath)
+		return false, nil
+	}
+	if !lastModifiedTime.After(v.configLastModifiedTime) {
+		return false, nil
+	}
+	autoScalerConfig, err := loadAutoScalerConfig(v.configPath)
+	if err != nil {
+		klog.Errorf("failed to construct the virtual autoscaler autoScalerConfig from file: %s, error: %s", v.configPath, err)
+		return false, err
+	}
+	v.config = autoScalerConfig
+	return true, nil
+}
+
+func (v *VirtualCloudProvider) reloadVirtualNodeGroups() error {
+	virtualNodeGroups, err := buildVirtualNodeGroups(v.clientSet, v.config)
+	if err != nil {
+		return err
+	}
+	v.virtualNodeGroups = AsSyncMap(virtualNodeGroups)
+	return nil
+}
+
+func (v *VirtualCloudProvider) refreshNodes() error {
 	nodes, err := v.clientSet.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -472,27 +620,48 @@ func (v *VirtualCloudProvider) Refresh() error {
 	nodesByNodeGroup := lo.GroupBy(nodes.Items, func(node corev1.Node) string {
 		return node.Labels[NodeGroupLabel]
 	})
-	for _, nodeGroup := range v.virtualNodeGroups {
-		expectedSize := nodeGroup.NodeGroupInfo.TargetSize
-		currentSize := len(nodesByNodeGroup[nodeGroup.nonNamespacedName])
+	var aggError error
+	v.virtualNodeGroups.Range(func(key, value any) bool {
+		virtualNodeGroup := value.(*VirtualNodeGroup)
+		expectedSize := virtualNodeGroup.NodeGroupInfo.TargetSize
+		currentSize := len(nodesByNodeGroup[virtualNodeGroup.nonNamespacedName])
 		delta := expectedSize - currentSize
 		if delta > 0 {
-			klog.Infof("add %d extra nodes in nodegroup %s", delta, nodeGroup.nonNamespacedName)
-			err = nodeGroup.IncreaseSize(delta)
+			klog.Infof("add %d extra nodes in nodegroup %s", delta, virtualNodeGroup.nonNamespacedName)
+			err = virtualNodeGroup.IncreaseSize(delta)
 			if err != nil {
-				return err
+				aggError = err
+				return false
 			}
 		} else {
-			klog.Infof("delete %d extra nodes in nodegroup %s", -delta, nodeGroup.nonNamespacedName)
-			err = nodeGroup.DecreaseTargetSize(-delta)
+			klog.Infof("delete %d extra nodes in nodegroup %s", -delta, virtualNodeGroup.nonNamespacedName)
+			err = virtualNodeGroup.DecreaseTargetSize(-delta)
 			if err != nil {
-				return err
+				aggError = err
+				return false
 			}
 		}
+		return true
+	})
+
+	return aggError
+}
+func (v *VirtualCloudProvider) Refresh() error {
+	refreshed, err := v.refreshConfig()
+	if err != nil {
+		return err
+	}
+	if refreshed {
+		err = v.reloadVirtualNodeGroups()
+		if err != nil {
+			return err
+		}
+	}
+	if len(v.config.NodeGroups) == 0 {
+		return nil
 	}
 
-	// Refresh
-	return nil
+	return v.refreshNodes()
 }
 
 var _ cloudprovider.CloudProvider = (*VirtualCloudProvider)(nil)
@@ -640,16 +809,16 @@ func (v *VirtualNodeGroup) buildCoreNodeFromTemplate() (corev1.Node, error) {
 	}
 
 	node.Status = corev1.NodeStatus{
-		Capacity: corev1.ResourceList{},
+		Capacity: maps.Clone(v.nodeTemplate.Capacity),
 	}
-
-	node.Status.Capacity[corev1.ResourcePods] = resource.MustParse("110") //Fixme must take it dynamically from node object
-	node.Status.Capacity[corev1.ResourceCPU] = v.nodeTemplate.CPU
-	if v.nodeTemplate.GPU.Cmp(resource.MustParse("0")) != 0 {
-		node.Status.Capacity[gpu.ResourceNvidiaGPU] = v.nodeTemplate.GPU
-	}
-	node.Status.Capacity[corev1.ResourceMemory] = v.nodeTemplate.Memory
-	node.Status.Capacity[corev1.ResourceEphemeralStorage] = v.nodeTemplate.EphemeralStorage
+	//node.Status.Capacity[corev1.ResourcePods] = resource.MustParse("110") //Fixme must take it dynamically from node object
+	//node.Status.Capacity[corev1.ResourceCPU] = v.nodeTemplate.CPU
+	//if v.nodeTemplate.GPU.Cmp(resource.MustParse("0")) != 0 {
+	node.Status.Capacity[gpu.ResourceNvidiaGPU] = v.nodeTemplate.Capacity["gpu"]
+	delete(node.Status.Capacity, "gpu")
+	//}
+	//node.Status.Capacity[corev1.ResourceMemory] = v.nodeTemplate.Memory
+	//node.Status.Capacity[corev1.ResourceEphemeralStorage] = v.nodeTemplate.EphemeralStorage
 	// added most common hugepages sizes. This will help to consider the template node while finding similar node groups
 	node.Status.Capacity["hugepages-1Gi"] = *resource.NewQuantity(0, resource.DecimalSI)
 	node.Status.Capacity["hugepages-2Mi"] = *resource.NewQuantity(0, resource.DecimalSI)
