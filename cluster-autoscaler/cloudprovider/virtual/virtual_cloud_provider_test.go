@@ -1,7 +1,6 @@
 package virtual
 
 import (
-	gct "github.com/elankath/gardener-cluster-types"
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/util/json"
 	"testing"
@@ -14,20 +13,20 @@ func TestReadClusterInfo(t *testing.T) {
 }
 
 func TestLoadAutoScalerConfig(t *testing.T) {
-	expectedConfig := gct.AutoScalerConfig{
-		NodeTemplates: map[string]gct.NodeTemplate{
+	expectedConfig := gst.AutoScalerConfig{
+		NodeTemplates: map[string]gst.NodeTemplate{
 			"a": {
 				Name:             "a",
-				CPU:              gct.MustParseQuantity("10Mi"),
-				GPU:              gct.MustParseQuantity("12Mi"),
-				Memory:           gct.MustParseQuantity("10Gi"),
-				EphemeralStorage: gct.MustParseQuantity("11Gi"),
+				CPU:              gst.MustParseQuantity("10Mi"),
+				GPU:              gst.MustParseQuantity("12Mi"),
+				Memory:           gst.MustParseQuantity("10Gi"),
+				EphemeralStorage: gst.MustParseQuantity("11Gi"),
 				InstanceType:     "m5.large",
 				Region:           "eu-west-1",
 				Zone:             "eu-west-1a",
 			},
 		},
-		NodeGroups: map[string]gct.NodeGroupInfo{
+		NodeGroups: map[string]gst.NodeGroupInfo{
 			"a": {
 				Name:       "a",
 				PoolName:   "p1",
@@ -37,7 +36,7 @@ func TestLoadAutoScalerConfig(t *testing.T) {
 				MaxSize:    5,
 			},
 		},
-		/*WorkerPools: []gct.WorkerPoolInfo{
+		/*WorkerPools: []gst.WorkerPoolInfo{
 			{
 				Architecture: "arm64",
 				Minimum:      1,
@@ -53,10 +52,10 @@ func TestLoadAutoScalerConfig(t *testing.T) {
 				Zones: []string{"eu-west-1a"},
 			},
 		},*/
-		CASettings: gct.CASettingsInfo{
+		CASettings: gst.CASettingsInfo{
 			Expander: "least-waste",
-			NodeGroupsMinMax: map[string]gct.MinMax{
-				"a": gct.MinMax{
+			NodeGroupsMinMax: map[string]gst.MinMax{
+				"a": gst.MinMax{
 					Min: 1,
 					Max: 5,
 				},
@@ -73,7 +72,7 @@ func TestLoadAutoScalerConfig(t *testing.T) {
 	}
 	bytes, err := json.Marshal(expectedConfig)
 	assert.Nil(t, err)
-	var actualLoadedConfig gct.AutoScalerConfig
+	var actualLoadedConfig gst.AutoScalerConfig
 	err = json.Unmarshal(bytes, &actualLoadedConfig)
 	assert.Nil(t, err)
 	assert.Equal(t, expectedConfig, actualLoadedConfig)
