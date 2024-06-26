@@ -4,7 +4,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
-	gct "github.com/elankath/gardener-cluster-types"
+	"github.com/elankath/gardener-scaling-types"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -33,9 +33,9 @@ import (
 )
 
 type VirtualNodeGroup struct {
-	gct.NodeGroupInfo
+	gst.NodeGroupInfo
 	nonNamespacedName string
-	nodeTemplate      gct.NodeTemplate
+	nodeTemplate      gst.NodeTemplate
 	instances         []cloudprovider.Instance
 	clientSet         *kubernetes.Clientset
 }
@@ -46,7 +46,7 @@ const GPULabel = "virtual/gpu"
 const NodeGroupLabel = "worker.gardener.cloud/nodegroup"
 
 type VirtualCloudProvider struct {
-	config                 *gct.AutoScalerConfig
+	config                 *gst.AutoScalerConfig
 	configPath             string
 	configLastModifiedTime time.Time
 	resourceLimiter        *cloudprovider.ResourceLimiter
@@ -79,9 +79,9 @@ func BuildVirtual(opts config.AutoscalingOptions, do cloudprovider.NodeGroupDisc
 	/*if clusterInfoPath == "" {
 		klog.Infof("no GARDENER_CLUSTER_INFO passed, operating in zero mode")
 		return &VirtualCloudProvider{
-			clusterInfo: &gct.AutoScalerConfig{
-				NodeTemplates: make(map[string]gct.NodeTemplate),
-				NodeGroups:    make(map[string]gct.NodeGroupInfo),
+			clusterInfo: &gst.AutoScalerConfig{
+				NodeTemplates: make(map[string]gst.NodeTemplate),
+				NodeGroups:    make(map[string]gst.NodeGroupInfo),
 				WorkerPools:   nil,
 			},
 			virtualNodeGroups: make(map[string]*VirtualNodeGroup),
@@ -124,10 +124,9 @@ func AsSyncMap(mp map[string]*VirtualNodeGroup) (sMap sync.Map) {
 
 func InitializeFromVirtualConfig(virtualAutoscalerConfigPath string, clientSet *kubernetes.Clientset, rl *cloudprovider.ResourceLimiter) (*VirtualCloudProvider, error) {
 	return &VirtualCloudProvider{
-		config: &gct.AutoScalerConfig{
-			NodeTemplates: make(map[string]gct.NodeTemplate),
-			NodeGroups:    make(map[string]gct.NodeGroupInfo),
-			WorkerPools:   nil,
+		config: &gst.AutoScalerConfig{
+			NodeTemplates: make(map[string]gst.NodeTemplate),
+			NodeGroups:    make(map[string]gst.NodeGroupInfo),
 		},
 		configPath:      virtualAutoscalerConfigPath,
 		resourceLimiter: rl,
@@ -135,7 +134,7 @@ func InitializeFromVirtualConfig(virtualAutoscalerConfigPath string, clientSet *
 	}, nil
 }
 
-func buildVirtualNodeGroups(clientSet *kubernetes.Clientset, clusterInfo *gct.AutoScalerConfig) (map[string]*VirtualNodeGroup, error) {
+func buildVirtualNodeGroups(clientSet *kubernetes.Clientset, clusterInfo *gst.AutoScalerConfig) (map[string]*VirtualNodeGroup, error) {
 	virtualNodeGroups := make(map[string]*VirtualNodeGroup)
 	for name, ng := range clusterInfo.NodeGroups {
 		names := strings.Split(name, ".")
@@ -145,7 +144,7 @@ func buildVirtualNodeGroups(clientSet *kubernetes.Clientset, clusterInfo *gct.Au
 		virtualNodeGroup := VirtualNodeGroup{
 			NodeGroupInfo:     ng,
 			nonNamespacedName: names[1],
-			nodeTemplate:      gct.NodeTemplate{},
+			nodeTemplate:      gst.NodeTemplate{},
 			instances:         nil,
 			clientSet:         clientSet,
 		}
@@ -187,16 +186,16 @@ func getIntOrString(val any) intstr.IntOrString {
 	return valIntOrString
 }
 
-func getWorkerPoolInfo(workerPool map[string]any) (wP gct.WorkerPoolInfo, err error) {
+func getWorkerPoolInfo(workerPool map[string]any) (wP gst.WorkerPoolInfo, err error) {
 	architecture := workerPool["architecture"].(string)
 	machineType := workerPool["machineType"].(string)
 	minimum := workerPool["minimum"].(int64)
 	maximum := workerPool["maximum"].(int64)
-	maxSurge, err := gct.AsIntOrString(workerPool["maxSurge"])
+	maxSurge, err := gst.AsIntOrString(workerPool["maxSurge"])
 	if err != nil {
 		return
 	}
-	maxUnavailable, err := gct.AsIntOrString(workerPool["maxUnavailable"])
+	maxUnavailable, err := gst.AsIntOrString(workerPool["maxUnavailable"])
 	if err != nil {
 		return
 	}
@@ -205,7 +204,7 @@ func getWorkerPoolInfo(workerPool map[string]any) (wP gct.WorkerPoolInfo, err er
 	for _, zone := range zonesVal {
 		zones = append(zones, zone.(string))
 	}
-	wP = gct.WorkerPoolInfo{
+	wP = gst.WorkerPoolInfo{
 		MachineType:    machineType,
 		Architecture:   architecture,
 		Minimum:        int(minimum),
@@ -217,10 +216,10 @@ func getWorkerPoolInfo(workerPool map[string]any) (wP gct.WorkerPoolInfo, err er
 	return
 }
 
-func getWorkerPoolsFromShootWorker(workerDataMap map[string]any) (virtualWorkerPools []gct.WorkerPoolInfo, err error) {
+func getWorkerPoolsFromShootWorker(workerDataMap map[string]any) (virtualWorkerPools []gst.WorkerPoolInfo, err error) {
 	workerPools := workerDataMap["spec"].(map[string]any)["pools"].([]any)
 	for _, pool := range workerPools {
-		var wp gct.WorkerPoolInfo
+		var wp gst.WorkerPoolInfo
 		wp, err = getWorkerPoolInfo(pool.(map[string]any))
 		if err != nil {
 			return
@@ -245,7 +244,7 @@ func ResourceListFromMap(input map[string]any) (corev1.ResourceList, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error parsing quantity for key %s: %v", key, err)
 		}
-		quantity, err = gct.NormalizeQuantity(quantity)
+		quantity, err = gst.NormalizeQuantity(quantity)
 		if err != nil {
 			return nil, fmt.Errorf("cannot normalize quantity %q: %w", quantity, err)
 		}
@@ -256,7 +255,7 @@ func ResourceListFromMap(input map[string]any) (corev1.ResourceList, error) {
 	return resourceList, nil
 }
 
-func getVirtualNodeTemplateFromMCC(mcc map[string]any) (nt gct.NodeTemplate, err error) {
+func getVirtualNodeTemplateFromMCC(mcc map[string]any) (nt gst.NodeTemplate, err error) {
 	nodeTemplate := mcc["nodeTemplate"].(map[string]any)
 	//providerSpec := mcc["providerSpec"].(map[string]any)
 	metadata := mcc["metadata"].(map[string]any)
@@ -291,7 +290,7 @@ func getVirtualNodeTemplateFromMCC(mcc map[string]any) (nt gct.NodeTemplate, err
 	//	return
 	//}
 
-	nt = gct.NodeTemplate{
+	nt = gst.NodeTemplate{
 		Name: name,
 		//CPU:          cpu,
 		//GPU:          gpu,
@@ -305,9 +304,9 @@ func getVirtualNodeTemplateFromMCC(mcc map[string]any) (nt gct.NodeTemplate, err
 	return
 }
 
-func getNodeTemplatesFromMCC(mccData map[string]any) (map[string]gct.NodeTemplate, error) {
+func getNodeTemplatesFromMCC(mccData map[string]any) (map[string]gst.NodeTemplate, error) {
 	mccList := mccData["items"].([]any)
-	var nodeTemplates []gct.NodeTemplate
+	var nodeTemplates []gst.NodeTemplate
 	for _, mcc := range mccList {
 		nodeTemplate, err := getVirtualNodeTemplateFromMCC(mcc.(map[string]any))
 		if err != nil {
@@ -316,7 +315,7 @@ func getNodeTemplatesFromMCC(mccData map[string]any) (map[string]gct.NodeTemplat
 		nodeTemplates = append(nodeTemplates, nodeTemplate)
 	}
 	namespace := mccList[0].(map[string]any)["metadata"].(map[string]any)["namespace"].(string)
-	return lo.KeyBy(nodeTemplates, func(item gct.NodeTemplate) string {
+	return lo.KeyBy(nodeTemplates, func(item gst.NodeTemplate) string {
 		name := item.Name
 		idx := strings.LastIndex(name, "-")
 		// mcc name - shoot--i585976--suyash-local-worker-1-z1-0af3f , we omit the hash from the mcc name to match it with the nodegroup name
@@ -325,10 +324,10 @@ func getNodeTemplatesFromMCC(mccData map[string]any) (map[string]gct.NodeTemplat
 	}), nil
 }
 
-func getNodeGroupFromMCD(mcd gct.MachineDeploymentInfo) gct.NodeGroupInfo {
+func getNodeGroupFromMCD(mcd gst.MachineDeploymentInfo) gst.NodeGroupInfo {
 	name := mcd.Name
 	namespace := mcd.Namespace
-	return gct.NodeGroupInfo{
+	return gst.NodeGroupInfo{
 		Name:       fmt.Sprintf("%s.%s", namespace, name),
 		PoolName:   mcd.PoolName,
 		Zone:       mcd.Zone,
@@ -338,19 +337,19 @@ func getNodeGroupFromMCD(mcd gct.MachineDeploymentInfo) gct.NodeGroupInfo {
 	}
 }
 
-func mapToNodeGroups(mcds []gct.MachineDeploymentInfo) map[string]gct.NodeGroupInfo {
-	var nodeGroups []gct.NodeGroupInfo
+func mapToNodeGroups(mcds []gst.MachineDeploymentInfo) map[string]gst.NodeGroupInfo {
+	var nodeGroups []gst.NodeGroupInfo
 	for _, mcd := range mcds {
 		nodeGroups = append(nodeGroups, getNodeGroupFromMCD(mcd))
 	}
-	return lo.KeyBy(nodeGroups, func(item gct.NodeGroupInfo) string {
+	return lo.KeyBy(nodeGroups, func(item gst.NodeGroupInfo) string {
 		return item.Name
 	})
 }
 
-func parseCASettingsInfo(caDeploymentData map[string]any) (caSettings gct.CASettingsInfo, err error) {
-	caSettings.NodeGroupsMinMax = make(map[string]gct.MinMax)
-	containersVal, err := gct.GetInnerMapValue(caDeploymentData, "spec", "template", "spec", "containers")
+func parseCASettingsInfo(caDeploymentData map[string]any) (caSettings gst.CASettingsInfo, err error) {
+	caSettings.NodeGroupsMinMax = make(map[string]gst.MinMax)
+	containersVal, err := gst.GetInnerMapValue(caDeploymentData, "spec", "template", "spec", "containers")
 	if err != nil {
 		return
 	}
@@ -381,7 +380,7 @@ func parseCASettingsInfo(caDeploymentData map[string]any) (caSettings gct.CASett
 		case "--new-pod-scale-up-delay":
 			caSettings.NewPodScaleUpDelay, err = time.ParseDuration(val)
 		case "--nodes":
-			var ngMinMax gct.MinMax
+			var ngMinMax gst.MinMax
 			ngVals := strings.Split(val, ":")
 			ngMinMax.Min, err = strconv.Atoi(ngVals[0])
 			ngMinMax.Max, err = strconv.Atoi(ngVals[1])
@@ -394,7 +393,7 @@ func parseCASettingsInfo(caDeploymentData map[string]any) (caSettings gct.CASett
 	return
 }
 
-func readInitClusterInfo(clusterInfoPath string) (cI gct.AutoScalerConfig, err error) {
+func readInitClusterInfo(clusterInfoPath string) (cI gst.AutoScalerConfig, err error) {
 	workerJsonFile := fmt.Sprintf("%s/shoot-worker.json", clusterInfoPath)
 	data, err := os.ReadFile(workerJsonFile)
 	if err != nil {
@@ -408,12 +407,10 @@ func readInitClusterInfo(clusterInfoPath string) (cI gct.AutoScalerConfig, err e
 		klog.Errorf("cannot unmarshal the worker json: %s", err.Error())
 		return
 	}
-	workerPools, err := getWorkerPoolsFromShootWorker(workerDataMap)
 	if err != nil {
 		klog.Errorf("cannot parse the worker pools: %s", err.Error())
 		return
 	}
-	cI.WorkerPools = workerPools
 
 	machineClassesJsonPath := fmt.Sprintf("%s/machine-classes.json", clusterInfoPath)
 	data, err = os.ReadFile(machineClassesJsonPath)
@@ -465,7 +462,7 @@ func readInitClusterInfo(clusterInfoPath string) (cI gct.AutoScalerConfig, err e
 	return
 }
 
-func populateNodeTemplatesFromMCD(mcds []gct.MachineDeploymentInfo, nodeTemplates map[string]gct.NodeTemplate) {
+func populateNodeTemplatesFromMCD(mcds []gst.MachineDeploymentInfo, nodeTemplates map[string]gst.NodeTemplate) {
 	for _, mcd := range mcds {
 		templateName := fmt.Sprintf("%s.%s", mcd.Namespace, mcd.Name)
 		nodeTemplate := nodeTemplates[templateName]
@@ -475,7 +472,7 @@ func populateNodeTemplatesFromMCD(mcds []gct.MachineDeploymentInfo, nodeTemplate
 	}
 }
 
-func populateNodeTemplates(nodeGroups map[string]*VirtualNodeGroup, nodeTemplates map[string]gct.NodeTemplate) error {
+func populateNodeTemplates(nodeGroups map[string]*VirtualNodeGroup, nodeTemplates map[string]gst.NodeTemplate) error {
 	for name, template := range nodeTemplates {
 		ng, ok := nodeGroups[name]
 		if !ok {
@@ -502,24 +499,53 @@ func (v *VirtualCloudProvider) NodeGroups() []cloudprovider.NodeGroup {
 	return result
 }
 
-func (v *VirtualCloudProvider) NodeGroupForNode(node *corev1.Node) (cloudprovider.NodeGroup, error) {
-	ngName, ok := node.Labels[NodeGroupLabel]
-	if !ok {
-		return nil, fmt.Errorf("cant find %q label on node %q", NodeGroupLabel, node.Name)
-	}
-	var virtualNodeGroup *VirtualNodeGroup
+type poolKey struct {
+	poolName string
+	zone     string
+}
+
+func (v *VirtualCloudProvider) getNodeGroupsByPoolKey() map[poolKey]cloudprovider.NodeGroup {
+	poolKeyMap := make(map[poolKey]cloudprovider.NodeGroup)
 	v.virtualNodeGroups.Range(func(key, value any) bool {
-		vng := value.(*VirtualNodeGroup)
-		if vng.nonNamespacedName == ngName {
-			virtualNodeGroup = vng
-			return false
+		virtualNodeGroup := value.(*VirtualNodeGroup)
+		poolKey := poolKey{
+			poolName: virtualNodeGroup.PoolName,
+			zone:     virtualNodeGroup.Zone,
 		}
+		poolKeyMap[poolKey] = virtualNodeGroup
 		return true
 	})
-	if virtualNodeGroup != nil {
-		return virtualNodeGroup, nil
+	return poolKeyMap
+}
+
+func (v *VirtualCloudProvider) NodeGroupForNode(node *corev1.Node) (cloudprovider.NodeGroup, error) {
+	//ngName, ok := node.Labels[NodeGroupLabel]
+	//if !ok {
+	//	return nil, fmt.Errorf("cant find %q label on node %q", NodeGroupLabel, node.Name)
+	//}
+	//var virtualNodeGroup *VirtualNodeGroup
+	//v.virtualNodeGroups.Range(func(key, value any) bool {
+	//	vng := value.(*VirtualNodeGroup)
+	//	if vng.nonNamespacedName == ngName {
+	//		virtualNodeGroup = vng
+	//		return false
+	//	}
+	//	return true
+	//})
+	//if virtualNodeGroup != nil {
+	//	return virtualNodeGroup, nil
+	//}
+	//return nil, fmt.Errorf("cant find VirtualNodeGroup with name %q", ngName)
+	poolKeyMap := v.getNodeGroupsByPoolKey()
+	nodePoolKey := poolKey{
+		poolName: node.Labels["worker.gardener.cloud/pool"],
+		zone:     node.Labels["topology.kubernetes.io/zone"],
 	}
-	return nil, fmt.Errorf("cant find VirtualNodeGroup with name %q", ngName)
+	nodeGroup, ok := poolKeyMap[nodePoolKey]
+	if !ok {
+		return nil, fmt.Errorf("cant find VirtualNodeGroup for node with with name %q", node.Name)
+	}
+	return nodeGroup, nil
 }
 
 func (v *VirtualCloudProvider) HasInstance(node *corev1.Node) (bool, error) {
@@ -568,13 +594,13 @@ func checkAndGetFileLastModifiedTime(filePath string) (exist bool, lastModifiedT
 	return
 }
 
-func loadAutoScalerConfig(filePath string) (config *gct.AutoScalerConfig, err error) {
+func loadAutoScalerConfig(filePath string) (config gst.AutoScalerConfig, err error) {
 	bytes, err := os.ReadFile(filePath)
 	if err != nil {
 		return
 	}
 
-	err = json.Unmarshal(bytes, config)
+	err = json.Unmarshal(bytes, &config)
 	if err != nil {
 		return
 	}
@@ -599,7 +625,7 @@ func (v *VirtualCloudProvider) refreshConfig() (bool, error) {
 		klog.Errorf("failed to construct the virtual autoscaler autoScalerConfig from file: %s, error: %s", v.configPath, err)
 		return false, err
 	}
-	v.config = autoScalerConfig
+	v.config = &autoScalerConfig
 	return true, nil
 }
 
@@ -613,6 +639,10 @@ func (v *VirtualCloudProvider) reloadVirtualNodeGroups() error {
 }
 
 func (v *VirtualCloudProvider) refreshNodes() error {
+	if v.config.Mode == gst.AutoscalerReplayerMode {
+		klog.Info("autoscaler is being controlled by replayer, will not refresh nodes")
+		return nil
+	}
 	nodes, err := v.clientSet.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -661,7 +691,12 @@ func (v *VirtualCloudProvider) Refresh() error {
 		return nil
 	}
 
-	return v.refreshNodes()
+	err = v.refreshNodes()
+	if err != nil {
+		return err
+	}
+	klog.Infof("completed refresh of virtual cloud provider using config path: %s", v.configPath)
+	return nil
 }
 
 var _ cloudprovider.CloudProvider = (*VirtualCloudProvider)(nil)
@@ -775,7 +810,7 @@ func (v *VirtualNodeGroup) Nodes() ([]cloudprovider.Instance, error) {
 	return v.instances, nil
 }
 
-func buildGenericLabels(template *gct.NodeTemplate, nodeName string) map[string]string {
+func buildGenericLabels(template *gst.NodeTemplate, nodeName string) map[string]string {
 	result := make(map[string]string)
 	// TODO: extract from MCM
 	result[kubeletapis.LabelArch] = cloudprovider.DefaultArch
@@ -872,7 +907,7 @@ func (v *VirtualNodeGroup) GetOptions(defaults config.NodeGroupAutoscalingOption
 	return &defaults, nil
 }
 
-func readMachineDeploymentInfos(mcdsJsonFile string) ([]gct.MachineDeploymentInfo, error) {
+func readMachineDeploymentInfos(mcdsJsonFile string) ([]gst.MachineDeploymentInfo, error) {
 	bytes, err := os.ReadFile(mcdsJsonFile)
 	if err != nil {
 		return nil, err
@@ -884,7 +919,7 @@ func readMachineDeploymentInfos(mcdsJsonFile string) ([]gct.MachineDeploymentInf
 		return nil, err
 	}
 	items := mcdData.UnstructuredContent()["items"].([]any)
-	mcdInfos := make([]gct.MachineDeploymentInfo, len(items))
+	mcdInfos := make([]gst.MachineDeploymentInfo, len(items))
 	for i, item := range items {
 		itemMap := item.(map[string]any)
 		itemObj := unstructured.Unstructured{Object: itemMap}
@@ -947,8 +982,8 @@ func readMachineDeploymentInfos(mcdsJsonFile string) ([]gct.MachineDeploymentInf
 		if !found {
 			return nil, fmt.Errorf("cannot find nested class inside nodeTemplate belonging to machine deployment json with idx %d", i)
 		}
-		mcdInfo := gct.MachineDeploymentInfo{
-			SnapshotMeta: gct.SnapshotMeta{
+		mcdInfo := gst.MachineDeploymentInfo{
+			SnapshotMeta: gst.SnapshotMeta{
 				CreationTimestamp: itemObj.GetCreationTimestamp().Time.UTC(),
 				SnapshotTimestamp: time.Now().UTC(),
 				Name:              name,
@@ -956,7 +991,7 @@ func readMachineDeploymentInfos(mcdsJsonFile string) ([]gct.MachineDeploymentInf
 			},
 			Replicas:         replicas,
 			PoolName:         labels["worker.gardener.cloud/pool"],
-			Zone:             gct.GetZone(labelsVal),
+			Zone:             gst.GetZone(labelsVal),
 			MaxSurge:         intstr.IntOrString{},
 			MaxUnavailable:   intstr.IntOrString{},
 			MachineClassName: class["name"],
