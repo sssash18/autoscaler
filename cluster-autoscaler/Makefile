@@ -36,7 +36,10 @@ IMAGE=$(REGISTRY)/cluster-autoscaler$(PROVIDER)
 
 export DOCKER_CLI_EXPERIMENTAL := enabled
 
-build: build-arch-$(GOARCH)
+build:
+	@echo "⚠️  WARNING: The vendor directory will be removed soon. \
+	Please make sure your dependencies are managed via Go modules."
+	@$(MAKE) build-arch-$(GOARCH)
 
 build-arch-%: clean-arch-%
 	$(ENVVAR) GOOS=$(GOOS) GOARCH=$* go build -o cluster-autoscaler-$* ${LDFLAGS_FLAG} ${TAGS_FLAG}
@@ -119,7 +122,7 @@ $(LOCALBIN):
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 
 ## Tool Versions
-CONTROLLER_TOOLS_VERSION ?= v0.13.0
+CONTROLLER_TOOLS_VERSION ?= v0.14.0
 
 .PHONY: controller-gen
 controller-gen: $(CONTROLLER_GEN) ## Download controller-gen locally if necessary.
@@ -128,58 +131,4 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 
 .PHONY: manifest
 manifest: controller-gen ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./..." output:crd:artifacts:config=config/crd
-.PHONY: start
-start:
-	@GO111MODULE=on go run main.go \
-			--kubeconfig=$(TARGET_KUBECONFIG) \
-			--cloud-provider=mcm \
-			--nodes=0:2:$(MACHINE_DEPLOYMENT_1_ZONE_1) \
-			--nodes=1:2:$(MACHINE_DEPLOYMENT_2_ZONE_1) \
-			--nodes=0:1:$(MACHINE_DEPLOYMENT_2_ZONE_2) \
-			--nodes=0:1:$(MACHINE_DEPLOYMENT_2_ZONE_3) \
-			--skip-nodes-with-system-pods=false \
-			--skip-nodes-with-local-storage=false \
-			--scale-down-delay-after-add=10s \
-			--scale-down-delay-after-failure=2s \
-			--v=4 \
-			--ignore-taint=node.gardener.cloud/critical-components-not-ready \
-			--ignore-taint=testing.node.gardener.cloud/initial-node-blocked \
-			--expander=least-waste \
-			--scale-down-unneeded-time=5s \
-			--balance-similar-node-groups=true \
-			--max-node-provision-time=4m \
-			--leader-elect=$(LEADER_ELECT) \
-			--leader-elect-retry-period="20s" \
-			--leader-elect-renew-deadline="30s" \
-			--leader-elect-lease-duration="40s"
-
-
-.PHONY: download-kubeconfigs
-download-kubeconfigs:
-	@chmod +x ./hack/local_setup.sh
-	@echo "enter project name"; \
-	read PROJECT; \
-	echo "enter seed name"; \
-	read SEED; \
-	echo "enter shoot name"; \
-	read SHOOT; \
-	echo "enter cluster provider(gcp|aws|azure|vsphere|openstack|alicloud|metal|equinix-metal)"; \
-	read PROVIDER; \
-	echo "enter zone with zero nodes in worker pool \"three-zones\" where the PV needs to be created to perform test"; \
-	read ZONE; \
-	. ./hack/local_setup.sh --SEED $$SEED --SHOOT $$SHOOT --PROJECT $$PROJECT; \
-	echo "###############################################" ; \
-	echo "To run the integration test run the following commands"; \
-	echo " ";\
-	echo "export CONTROL_NAMESPACE=$$CONTROL_NAMESPACE"; \
-	echo "export CONTROL_KUBECONFIG=$$CONTROL_KUBECONFIG"; \
-	echo "export TARGET_KUBECONFIG=$$TARGET_KUBECONFIG"; \
-	echo "export CLUSTER_PROVIDER=$$PROVIDER"; \
-	echo "export VOLUME_ZONE=$$ZONE"; \
-	echo " "; \
-	echo "make test-integration"
-
-.PHONY: test-integration
-test-integration:
-	../.ci/local_integration_test
+	$(CONTROLLER_GEN) rbac:roleName=manager-role crd webhook paths="./apis/..." output:crd:artifacts:config=apis/config/crd

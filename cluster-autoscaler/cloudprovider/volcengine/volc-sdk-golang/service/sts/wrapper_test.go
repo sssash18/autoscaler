@@ -14,12 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+
 package sts
 
 import (
-	"encoding/json"
-	"fmt"
-	"testing"
+"encoding/json"
+"fmt"
+"testing"
 )
 
 const (
@@ -32,10 +33,10 @@ func TestIAM_AssumeRole(t *testing.T) {
 	DefaultInstance.Client.SetSecretKey(testSk)
 
 	req := &AssumeRoleRequest{
-		DurationSeconds: 7200,
-		Policy:          "",
-		RoleTrn:         "testRoleTrn",
-		RoleSessionName: "test",
+	DurationSeconds: 7200,
+	Policy:          "",
+	RoleTrn:         "testRoleTrn",
+	RoleSessionName: "test",
 	}
 
 	list, status, err := DefaultInstance.AssumeRole(req)

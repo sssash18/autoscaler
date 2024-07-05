@@ -685,6 +685,7 @@ func TestGetFilteredAutoscalingGroupsVmss(t *testing.T) {
 		minSize:                minVal,
 		maxSize:                maxVal,
 		manager:                manager,
+		enableForceDelete:      manager.config.EnableForceDelete,
 		curSize:                3,
 		sizeRefreshPeriod:      manager.azureCache.refreshInterval,
 		instancesRefreshPeriod: defaultVmssInstancesRefreshPeriod,

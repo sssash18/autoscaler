@@ -19,6 +19,7 @@ package hetzner
 import (
 	"context"
 	"fmt"
+	"maps"
 	"math/rand"
 	"strings"
 	"sync"
@@ -134,6 +135,11 @@ func (n *hetznerNodeGroup) IncreaseSize(delta int) error {
 	return nil
 }
 
+// AtomicIncreaseSize is not implemented.
+func (n *hetznerNodeGroup) AtomicIncreaseSize(delta int) error {
+	return cloudprovider.ErrNotImplemented
+}
+
 // DeleteNodes deletes nodes from this node group (and also increasing the size
 // of the node group with that). Error is returned either on failure or if the
 // given node doesn't belong to this node group. This function should wait
@@ -224,10 +230,14 @@ func (n *hetznerNodeGroup) TemplateNodeInfo() (*schedulerframework.NodeInfo, err
 		return nil, fmt.Errorf("failed to create resource list for node group %s error: %v", n.id, err)
 	}
 
+	nodeName := newNodeName(n)
+
 	node := apiv1.Node{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   newNodeName(n),
-			Labels: map[string]string{},
+			Name: nodeName,
+			Labels: map[string]string{
+				apiv1.LabelHostname: nodeName,
+			},
 		},
 		Status: apiv1.NodeStatus{
 			Capacity:   resourceList,

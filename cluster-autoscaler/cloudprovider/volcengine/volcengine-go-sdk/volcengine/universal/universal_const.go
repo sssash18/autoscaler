@@ -19,6 +19,13 @@ package universal
 type HttpMethod int
 
 const (
+<<<<<<<< HEAD:cluster-autoscaler/vendor/github.com/vmware/govmomi/internal/version/version.go
+	// ClientName is the name of this SDK
+	ClientName = "govmomi"
+
+	// ClientVersion is the version of this SDK
+	ClientVersion = "0.30.6"
+========
 	GET HttpMethod = iota
 	HEAD
 	POST
@@ -32,4 +39,5 @@ const (
 	Default ContentType = iota
 	FormUrlencoded
 	ApplicationJSON
+>>>>>>>> upstream-release-1.30.0:cluster-autoscaler/cloudprovider/volcengine/volcengine-go-sdk/volcengine/universal/universal_const.go
 )

@@ -268,6 +268,22 @@ func (m *UsernsManager) Release(podUID types.UID) {
 	m.releaseWithLock(podUID)
 }
 
+<<<<<<<< HEAD:cluster-autoscaler/vendor/k8s.io/kubernetes/pkg/kubelet/userns/userns_manager.go
+// podAllocated returns true if the pod is allocated, false otherwise.
+func (m *UsernsManager) podAllocated(podUID types.UID) bool {
+	if !utilfeature.DefaultFeatureGate.Enabled(features.UserNamespacesSupport) {
+		return false
+	}
+
+	m.lock.Lock()
+	defer m.lock.Unlock()
+
+	_, ok := m.usedBy[podUID]
+	return ok
+}
+
+========
+>>>>>>>> upstream-release-1.30.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/kubernetes/pkg/kubelet/userns/userns_manager.go
 func (m *UsernsManager) releaseWithLock(pod types.UID) {
 	v, ok := m.usedBy[pod]
 	if !ok {
@@ -374,7 +390,7 @@ func (m *UsernsManager) GetOrCreateUserNamespaceMappings(pod *v1.Pod) (*runtimea
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
-	if pod.Spec.HostUsers == nil || *pod.Spec.HostUsers == true {
+	if pod.Spec.HostUsers == nil || *pod.Spec.HostUsers {
 		return &runtimeapi.UserNamespace{
 			Mode: runtimeapi.NamespaceMode_NODE,
 		}, nil
