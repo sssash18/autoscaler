@@ -60,10 +60,6 @@ type timeProvider interface {
 	Now() time.Time
 }
 
-type timeProvider interface {
-	Now() time.Time
-}
-
 type cachingMigInfoProvider struct {
 	migInfoMutex                   sync.Mutex
 	cache                          *GceCache

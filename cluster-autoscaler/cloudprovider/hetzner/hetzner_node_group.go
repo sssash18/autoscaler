@@ -19,14 +19,6 @@ package hetzner
 import (
 	"context"
 	"fmt"
-	"maps"
-	"math/rand"
-	"strings"
-	"sync"
-	"time"
-
-	"maps"
-
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,6 +27,11 @@ import (
 	"k8s.io/autoscaler/cluster-autoscaler/config"
 	"k8s.io/klog/v2"
 	schedulerframework "k8s.io/kubernetes/pkg/scheduler/framework"
+	"maps"
+	"math/rand"
+	"strings"
+	"sync"
+	"time"
 )
 
 // hetznerNodeGroup implements cloudprovider.NodeGroup interface. hetznerNodeGroup contains

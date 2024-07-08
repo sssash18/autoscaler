@@ -103,9 +103,10 @@ github.com/armon/circbuf
 # github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
 ## explicit; go 1.13
 github.com/asaskevich/govalidator
-# github.com/aws/aws-sdk-go v1.44.241
-## explicit; go 1.11
+# github.com/aws/aws-sdk-go v1.51.28
+## explicit; go 1.19
 github.com/aws/aws-sdk-go/aws
+github.com/aws/aws-sdk-go/aws/auth/bearer
 github.com/aws/aws-sdk-go/aws/awserr
 github.com/aws/aws-sdk-go/aws/awsutil
 github.com/aws/aws-sdk-go/aws/client
@@ -150,6 +151,7 @@ github.com/aws/aws-sdk-go/service/elbv2
 github.com/aws/aws-sdk-go/service/kms
 github.com/aws/aws-sdk-go/service/sso
 github.com/aws/aws-sdk-go/service/sso/ssoiface
+github.com/aws/aws-sdk-go/service/ssooidc
 github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/beorn7/perks v1.0.1
@@ -250,10 +252,10 @@ github.com/gardener/machine-controller-manager/pkg/client/informers/externalvers
 github.com/gardener/machine-controller-manager/pkg/client/listers/machine/v1alpha1
 github.com/gardener/machine-controller-manager/pkg/util/provider/cache
 github.com/gardener/machine-controller-manager/pkg/util/provider/machinecodes/codes
-# github.com/gardener/machine-controller-manager-provider-aws v0.19.2
-## explicit; go 1.20
+# github.com/gardener/machine-controller-manager-provider-aws v0.20.0
+## explicit; go 1.21
 github.com/gardener/machine-controller-manager-provider-aws/pkg/aws/apis
-# github.com/gardener/machine-controller-manager-provider-azure v0.12.1
+# github.com/gardener/machine-controller-manager-provider-azure v0.13.0
 ## explicit; go 1.21
 github.com/gardener/machine-controller-manager-provider-azure/pkg/azure/api
 # github.com/go-logr/logr v1.4.1

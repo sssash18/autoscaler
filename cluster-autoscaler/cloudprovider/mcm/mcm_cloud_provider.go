@@ -530,6 +530,10 @@ func (machinedeployment *MachineDeployment) TemplateNodeInfo() (*schedulerframew
 	return nodeInfo, nil
 }
 
+func (machinedeployment *MachineDeployment) AtomicIncreaseSize(delta int) error {
+	return nil
+}
+
 func buildMachineDeploymentFromSpec(value string, mcmManager *McmManager) (*MachineDeployment, error) {
 	spec, err := dynamic.SpecFromString(value, true)
 
