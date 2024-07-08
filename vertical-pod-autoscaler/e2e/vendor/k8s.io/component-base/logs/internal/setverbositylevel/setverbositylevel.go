@@ -14,28 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-<<<<<<<< HEAD:vertical-pod-autoscaler/e2e/vendor/k8s.io/apiserver/pkg/admission/plugin/validatingadmissionpolicy/internal/generic/informer.go
-package generic
-
-import (
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/tools/cache"
-)
-
-var _ Informer[runtime.Object] = informer[runtime.Object]{}
-
-type informer[T runtime.Object] struct {
-	cache.SharedIndexInformer
-	lister[T]
-}
-
-func NewInformer[T runtime.Object](informe cache.SharedIndexInformer) Informer[T] {
-	return informer[T]{
-		SharedIndexInformer: informe,
-		lister:              NewLister[T](informe.GetIndexer()),
-	}
-}
-========
 // Package setverbositylevel stores callbacks that will be invoked by logs.GlogLevel.
 //
 // This is a separate package to avoid a dependency from
@@ -54,4 +32,3 @@ var (
 
 	Callbacks []func(v uint32) error
 )
->>>>>>>> upstream-release-1.30.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/component-base/logs/internal/setverbositylevel/setverbositylevel.go

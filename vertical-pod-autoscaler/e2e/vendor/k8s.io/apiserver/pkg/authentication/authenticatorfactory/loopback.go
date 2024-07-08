@@ -1,5 +1,5 @@
 /*
-Copyright 2023 The Kubernetes Authors.
+Copyright 2016 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,36 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-<<<<<<<< HEAD:cluster-autoscaler/cloudprovider/volcengine/volc-sdk-golang/service/sts/wrapper_test.go
-package sts
-
-import (
-	"encoding/json"
-	"fmt"
-	"testing"
-)
-
-const (
-	testAk = "testAK"
-	testSk = "testSK"
-)
-
-func TestIAM_AssumeRole(t *testing.T) {
-	DefaultInstance.Client.SetAccessKey(testAk)
-	DefaultInstance.Client.SetSecretKey(testSk)
-
-	req := &AssumeRoleRequest{
-		DurationSeconds: 7200,
-		Policy:          "",
-		RoleTrn:         "testRoleTrn",
-		RoleSessionName: "test",
-	}
-
-	list, status, err := DefaultInstance.AssumeRole(req)
-	fmt.Println(status, err)
-	b, _ := json.Marshal(list)
-	fmt.Println(string(b))
-========
 package authenticatorfactory
 
 import (
@@ -56,5 +26,4 @@ import (
 // NewFromTokens returns an authenticator.Request or an error
 func NewFromTokens(tokens map[string]*user.DefaultInfo, audiences authenticator.Audiences) authenticator.Request {
 	return bearertoken.New(authenticator.WrapAudienceAgnosticToken(audiences, tokenfile.New(tokens)))
->>>>>>>> upstream-release-1.30.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/apiserver/pkg/authentication/authenticatorfactory/loopback.go
 }

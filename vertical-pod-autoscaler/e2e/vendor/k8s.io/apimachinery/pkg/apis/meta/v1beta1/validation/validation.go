@@ -14,30 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-<<<<<<<< HEAD:cluster-autoscaler/vendor/k8s.io/code-generator/cmd/register-gen/args/args.go
-package args
-
-import (
-	"fmt"
-
-	"k8s.io/gengo/args"
-)
-
-// NewDefaults returns default arguments for the generator.
-func NewDefaults() *args.GeneratorArgs {
-	genericArgs := args.Default().WithoutDefaultFlagParsing()
-	genericArgs.OutputFileBaseName = "zz_generated.register"
-	return genericArgs
-}
-
-// Validate checks the given arguments.
-func Validate(genericArgs *args.GeneratorArgs) error {
-	if len(genericArgs.OutputFileBaseName) == 0 {
-		return fmt.Errorf("output file base name cannot be empty")
-	}
-
-	return nil
-========
 package validation
 
 import (
@@ -54,5 +30,4 @@ func ValidateTableOptions(opts *metav1.TableOptions) field.ErrorList {
 		allErrs = append(allErrs, field.Invalid(field.NewPath("includeObject"), opts.IncludeObject, "must be 'Metadata', 'Object', 'None', or empty"))
 	}
 	return allErrs
->>>>>>>> upstream-release-1.30.0:vertical-pod-autoscaler/e2e/vendor/k8s.io/apimachinery/pkg/apis/meta/v1beta1/validation/validation.go
 }
