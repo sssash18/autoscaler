@@ -99,6 +99,34 @@ target ETA and the actual releases.
 Additional patch releases may happen outside of the schedule in case of critical
 bugs or vulnerabilities.
 
+# Releases (Gardener/Autoscaler)
+
+Starting with Gardener/Autoscaler v1.20, versioning scheme has changed to match Kubernetes and upstream Autoscaler minor releases exactly. Note that there is a jump of major version as well.
+
+| Kubernetes Version | CA Version | Gardener CA Version | 
+|--------------------|------------|---------------------|
+| 1.30.X             | 1.30.X     | 1.30.X              |
+| 1.29.X             | 1.29.X     | 1.29.X              |
+| 1.28.X             | 1.28.X     | 1.28.X              |
+| 1.27.X             | 1.27.X     | 1.27.X              |
+| 1.26.X             | 1.26.X     | 1.26.X              |
+| 1.25.X             | 1.25.X     | 1.25.X              |
+| 1.24.X             | 1.24.X     | 1.24.X              |
+| 1.23.X             | 1.23.X     | 1.23.X              |
+| 1.22.X             | 1.22.X     | 1.22.X              |
+| 1.21.X             | 1.21.X     | 1.21.X              |
+| 1.20.X             | 1.20.X     | 1.20.X              |
+| 1.20.X             | 1.20.X     | 0.19.X              |
+| 1.19.X             | 1.19.X     | 0.18.X              |
+| 1.19.X             | 1.19.X     | 0.17.X              |
+| 1.19.X             | 1.19.X     | 0.16.X              |
+| 1.19.X             | 1.19.X     | 0.15.X              |
+| 1.19.X             | 1.19.X     | 0.14.X              |
+| 1.19.X             | 1.19.X     | 0.13.X              |
+| 1.19.X             | 1.19.X     | 0.12.X              |
+| 1.19.X             | 1.19.X     | 0.11.X              |
+| 1.12.X             | 1.12.X     | 0.10.X              |
+
 # Notable changes
 
 For CA 1.1.2 and later, please check [release

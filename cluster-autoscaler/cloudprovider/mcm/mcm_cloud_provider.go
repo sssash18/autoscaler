@@ -531,7 +531,7 @@ func (machinedeployment *MachineDeployment) TemplateNodeInfo() (*schedulerframew
 }
 
 func (machinedeployment *MachineDeployment) AtomicIncreaseSize(delta int) error {
-	return nil
+	return cloudprovider.ErrNotImplemented
 }
 
 func buildMachineDeploymentFromSpec(value string, mcmManager *McmManager) (*MachineDeployment, error) {
