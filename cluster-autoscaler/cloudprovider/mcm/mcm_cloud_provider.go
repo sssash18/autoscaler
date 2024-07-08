@@ -530,6 +530,7 @@ func (machinedeployment *MachineDeployment) TemplateNodeInfo() (*schedulerframew
 	return nodeInfo, nil
 }
 
+// AtomicIncreaseSize is not implemented.
 func (machinedeployment *MachineDeployment) AtomicIncreaseSize(delta int) error {
 	return cloudprovider.ErrNotImplemented
 }
